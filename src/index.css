@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.completed {
+  text-decoration: line-through;
+  color: gray;
+}
+
+.Todo p {
+  cursor: pointer; /* Makes text clickable */
+  transition: color 0.2s ease-in-out; /* Smooth transition */
+}
+.error {
+  color: red;
+}
