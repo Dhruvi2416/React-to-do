@@ -66,20 +66,22 @@ const TodoWrapper = () => {
         Get Things Done!
       </h1>
       <TodoForm addTodo={addTodos} />
-      {todos.map((todo, index) => {
-        return todo.isEditing ? (
-          <EditTodoForm task={todo} key={index} editTodo={handleEditTodo} />
-        ) : (
-          <Todo
-            className="p-5"
-            task={todo}
-            key={index}
-            toggleComplete={toggleComplete}
-            deleteTask={handleDeleteTask}
-            onClickEditTask={handleOnClickEditTask}
-          />
-        );
-      })}
+      <div className="todolist">
+        {todos.map((todo, index) => {
+          return todo.isEditing ? (
+            <EditTodoForm task={todo} key={index} editTodo={handleEditTodo} />
+          ) : (
+            <Todo
+              className="p-5"
+              task={todo}
+              key={index}
+              toggleComplete={toggleComplete}
+              deleteTask={handleDeleteTask}
+              onClickEditTask={handleOnClickEditTask}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 };

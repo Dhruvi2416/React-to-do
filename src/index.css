@@ -23,16 +23,6 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-
-  /* Height constraints */
-  height: 400px; /* Adjust as needed */
-  max-height: 70vh; /* Prevents it from getting too big */
-
-  /* Enable scrolling inside */
-  overflow-y: auto;
-  /* Hide scrollbar for different browsers */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Internet Explorer/Edge */
 }
 
 .todo-input {
@@ -50,6 +40,17 @@
   /* color: gray; */
 }
 
+.todolist {
+  /* Height constraints */
+  height: 400px; /* Adjust as needed */
+  max-height: 70vh; /* Prevents it from getting too big */
+
+  /* Enable scrolling inside */
+  overflow-y: auto;
+  /* Hide scrollbar for different browsers */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer/Edge */
+}
 .Todo p {
   cursor: pointer; /* Makes text clickable */
   transition: color 0.2s ease-in-out; /* Smooth transition */
