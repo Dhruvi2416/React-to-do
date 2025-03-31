@@ -1,10 +1,53 @@
+@import "tailwindcss";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  background-color: #845afc;
+  /* #1b1a41 */
+}
+
+.TodoWrapper {
+  display: flex;
+  flex-direction: column;
+
+  width: 50%; /* Adjust width as needed */
+  max-width: 500px; /* Prevents it from being too wide */
+  padding: 20px; /* Some spacing inside */
+  background-color: #1b1a41;
+  color: white; /* To make text visible on dark background */
+
+  /* Centering */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  /* Height constraints */
+  height: 400px; /* Adjust as needed */
+  max-height: 70vh; /* Prevents it from getting too big */
+
+  /* Enable scrolling inside */
+  overflow-y: auto;
+  /* Hide scrollbar for different browsers */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer/Edge */
+}
+
+.todo-input {
+  width: 368px;
+}
+.todo-btn {
+  background-color: #845afc;
+  padding: 10px;
+}
+.Todo {
+  background-color: #845afc;
+}
 .completed {
   text-decoration: line-through;
-  color: gray;
+  /* color: gray; */
 }
 
 .Todo p {
@@ -13,4 +56,9 @@
 }
 .error {
   color: red;
+}
+
+/* Hide scrollbar for WebKit browsers (Chrome, Safari) */
+.TodoWrapper::-webkit-scrollbar {
+  display: none;
 }

@@ -15,11 +15,11 @@ const EditTodoForm = ({ editTodo, task }) => {
     setNewTask("");
   };
   return (
-    <form className="EditTodoForm" onSubmit={handleSubmit}>
-      <div>
+    <form className="EditTodoForm " onSubmit={handleSubmit}>
+      <div className="border-1 border-purple-500 flex justify-between">
         <input
           type="text"
-          className="todo-input"
+          className="todo-input p-2  focus:outline-none focus:ring-0 focus:border-transparent"
           placeholder="Add a new task"
           value={newTask}
           //here value is needed as on emptying the todo it does not react explicitly as it is not binded

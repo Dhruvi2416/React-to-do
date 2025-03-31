@@ -2,7 +2,7 @@ import TodoWrapper from "./components/TodoWrapper";
 import "./App.css";
 function App() {
   return (
-    <div className="App">
+    <div className="container flex  align-items-center justify-center    ">
       <TodoWrapper />
     </div>
   );
