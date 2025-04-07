@@ -14,16 +14,16 @@ const TodoWrapper = () => {
 
   //sortedAndFilteredTodos
   const sortedAndFilteredTodos = useMemo(() => {
-    const filteredTodos = (() => {
-      switch (filterType) {
-        case "completed":
-          return todos.filter((todo) => todo.completed);
-        case "pending":
-          return todos.filter((todo) => !todo.completed);
-        default:
-          return todos;
-      }
-    })();
+    let filteredTodos = todos;
+    switch (filterType) {
+      case "completed":
+        filteredTodos = todos.filter((todo) => todo.completed);
+        break;
+      case "pending":
+        filteredTodos = todos.filter((todo) => !todo.completed);
+        break;
+    }
+
     const sortedTodos = sortByOldest
       ? [...filteredTodos].sort((a, b) => a.createdAt - b.createdAt)
       : [...filteredTodos].sort((a, b) => b.createdAt - a.createdAt);
