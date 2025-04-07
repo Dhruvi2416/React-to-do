@@ -3,6 +3,16 @@ import { useState } from "react";
 const EditTodoForm = ({ editTodo, task }) => {
   const [newTask, setNewTask] = useState(task.task);
   const [showError, setShowError] = useState("");
+  const [undoEdit, setUndoEdit] = useState(false);
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Escape") {
+      const undoEditedTask = !undoEdit;
+      setUndoEdit((prev) => !prev);
+      editTodo(task.id, newTask, undoEditedTask);
+    }
+  };
+
   const handleSubmit = (e) => {
     //prevents default behaviour for form submit
     e.preventDefault();
@@ -15,9 +25,12 @@ const EditTodoForm = ({ editTodo, task }) => {
     setNewTask("");
   };
   return (
-    <form className="EditTodoForm " onSubmit={handleSubmit}>
+    <form className="EditTodoForm py-2 " onSubmit={handleSubmit}>
       <div className="border-1 border-purple-500 flex justify-between">
         <input
+          onKeyDown={(e) => {
+            handleKeyDown(e);
+          }}
           type="text"
           className="todo-input p-2  focus:outline-none focus:ring-0 focus:border-transparent"
           placeholder="Add a new task"

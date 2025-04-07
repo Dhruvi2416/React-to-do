@@ -3,6 +3,14 @@ import { useState } from "react";
 const TodoForm = ({ addTodo }) => {
   const [newTask, setNewTask] = useState("");
   const [showError, setShowError] = useState("");
+
+  //handle Key Down Changes
+  const handleKeyDown = (e) => {
+    if (e.key === "Escape") {
+      setNewTask("");
+    }
+  };
+
   const handleSubmit = (e) => {
     //prevents default behaviour for form submit
     e.preventDefault();
@@ -18,6 +26,9 @@ const TodoForm = ({ addTodo }) => {
     <form className="TodoForm py-5" onSubmit={handleSubmit}>
       <div className="border-1 border-purple-500 flex justify-between">
         <input
+          onKeyDown={(e) => {
+            handleKeyDown(e);
+          }}
           type="text"
           className="todo-input  p-2  focus:outline-none focus:ring-0 focus:border-transparent"
           placeholder="Add a new task"
