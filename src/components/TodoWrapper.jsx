@@ -25,8 +25,8 @@ const TodoWrapper = () => {
       }
     })();
     const sortedTodos = sortByOldest
-      ? filteredTodos.sort((a, b) => a.createdAt - b.createdAt)
-      : filteredTodos.sort((a, b) => b.createdAt - a.createdAt);
+      ? [...filteredTodos].sort((a, b) => a.createdAt - b.createdAt)
+      : [...filteredTodos].sort((a, b) => b.createdAt - a.createdAt);
     return sortedTodos;
   }, [todos, filterType, sortByOldest]);
 
@@ -92,12 +92,12 @@ const TodoWrapper = () => {
       <div className="todolist">
         {sortedAndFilteredTodos.map((todo, index) =>
           todo.isEditing ? (
-            <EditTodoForm task={todo} key={index} editTodo={handleEditTodo} />
+            <EditTodoForm task={todo} key={todo.id} editTodo={handleEditTodo} />
           ) : (
             <Todo
               className="p-5"
               task={todo}
-              key={index}
+              key={todo.id}
               toggleComplete={toggleComplete}
               deleteTask={handleDeleteTask}
               onClickEditTask={handleOnClickEditTask}
