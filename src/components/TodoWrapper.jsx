@@ -70,10 +70,12 @@ const TodoWrapper = () => {
   };
 
   // Handle task edit
-  const handleEditTodo = (id, task) => {
+  const handleEditTodo = (id, task, undoEdit = false) => {
     setTodos((prev) =>
       prev.map((todo) =>
-        todo.id === id ? { ...todo, isEditing: false, task } : todo
+        todo.id === id
+          ? { ...todo, isEditing: false, ...(undoEdit ? {} : { task }) }
+          : todo
       )
     );
   };
