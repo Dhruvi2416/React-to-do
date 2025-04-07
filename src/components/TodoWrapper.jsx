@@ -3,34 +3,32 @@ import { v4 as uuidv4 } from "uuid";
 import TodoForm from "./TodoForm";
 import Todo from "./Todo";
 import EditTodoForm from "./EditTodoForm";
+import TodoFilter from "./TodoFilter";
 
 const TodoWrapper = () => {
   const [todos, setTodos] = useState(() => {
     return JSON.parse(localStorage.getItem("todosStored")) || [];
   });
-
   const [filterType, setFilterType] = useState("all");
-  const [showOldestTodosFirst, setShowOldestTodosFirst] = useState(false);
+  const [sortByOldest, setSortByOldest] = useState(false);
 
-  // Filter and sort todos
+  //sortedAndFilteredTodos
   const sortedAndFilteredTodos = useMemo(() => {
-    const filtered = (() => {
+    const filteredTodos = (() => {
       switch (filterType) {
         case "completed":
           return todos.filter((todo) => todo.completed);
-        case "incomplete":
+        case "pending":
           return todos.filter((todo) => !todo.completed);
         default:
           return todos;
       }
     })();
-
-    return [...filtered].sort((a, b) =>
-      showOldestTodosFirst
-        ? a.createdAt - b.createdAt
-        : b.createdAt - a.createdAt
-    );
-  }, [todos, filterType, showOldestTodosFirst]);
+    const sortedTodos = sortByOldest
+      ? filteredTodos.sort((a, b) => a.createdAt - b.createdAt)
+      : filteredTodos.sort((a, b) => b.createdAt - a.createdAt);
+    return sortedTodos;
+  }, [todos, filterType, sortByOldest]);
 
   // Add new todo
   const addTodos = (todo) => {
@@ -107,49 +105,12 @@ const TodoWrapper = () => {
           )
         )}
       </div>
-
-      <div className="flex justify-center align-items-center mt-5">
-        {/* Show Completed Tasks */}
-        <div className="mx-2">
-          <input
-            type="checkbox"
-            id="completed"
-            checked={filterType === "completed"}
-            onChange={() =>
-              setFilterType((prev) =>
-                prev === "completed" ? "all" : "completed"
-              )
-            }
-          />
-          <label htmlFor="completed"> Show Completed tasks</label>
-        </div>
-
-        {/* Show Pending Tasks */}
-        <div className="mx-2">
-          <input
-            type="checkbox"
-            id="pending"
-            checked={filterType === "incomplete"}
-            onChange={() =>
-              setFilterType((prev) =>
-                prev === "incomplete" ? "all" : "incomplete"
-              )
-            }
-          />
-          <label htmlFor="pending"> Show Pending tasks</label>
-        </div>
-
-        {/* Sort By Oldest */}
-        <div>
-          <input
-            type="checkbox"
-            id="sortByOldest"
-            checked={showOldestTodosFirst}
-            onChange={() => setShowOldestTodosFirst((prev) => !prev)}
-          />
-          <label htmlFor="sortByOldest"> Show Oldest tasks first</label>
-        </div>
-      </div>
+      <TodoFilter
+        onFilterChange={setFilterType}
+        filterType={filterType}
+        onSortByOldest={setSortByOldest}
+        sort={sortByOldest}
+      />
     </div>
   );
 };
