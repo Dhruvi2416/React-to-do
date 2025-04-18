@@ -40,6 +40,12 @@
   /* color: gray; */
 }
 
+.taskexpired {
+  /* color: #1b1a41; */
+  color:darkred;
+  font-weight: bold;
+}
+
 .todolist {
   /* Height constraints */
   height: 400px; /* Adjust as needed */

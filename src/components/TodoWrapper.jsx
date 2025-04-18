@@ -4,6 +4,7 @@ import TodoForm from "./TodoForm";
 import Todo from "./Todo";
 import EditTodoForm from "./EditTodoForm";
 import TodoFilter from "./TodoFilter";
+import DueDateSelector from "./DueDateSelector";
 
 const TodoWrapper = () => {
   const [todos, setTodos] = useState(() => {
@@ -39,6 +40,7 @@ const TodoWrapper = () => {
         completed: false,
         isEditing: false,
         createdAt: Date.now(),
+        dueDate: Date.now(),
       },
       ...prevTodos,
     ]);
@@ -80,6 +82,17 @@ const TodoWrapper = () => {
     );
   };
 
+  //Handle Due Date Change of a todo
+  const handleDueDateChangeOFTodo = (id, newDueDate) => {
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === id
+          ? { ...todo, dueDate: newDueDate } // Update the due date here
+          : todo
+      )
+    );
+  };
+
   // Store todos in localStorage
   useEffect(() => {
     localStorage.setItem("todosStored", JSON.stringify(todos));
@@ -96,14 +109,24 @@ const TodoWrapper = () => {
           todo.isEditing ? (
             <EditTodoForm task={todo} key={todo.id} editTodo={handleEditTodo} />
           ) : (
-            <Todo
-              className="p-5"
-              task={todo}
-              key={todo.id}
-              toggleComplete={toggleComplete}
-              deleteTask={handleDeleteTask}
-              onClickEditTask={handleOnClickEditTask}
-            />
+            <div className="flex justify-between" key={todo.id}>
+              <div className="w-[95%]">
+                <Todo
+                  className="p-5"
+                  task={todo}
+                  toggleComplete={toggleComplete}
+                  deleteTask={handleDeleteTask}
+                  onClickEditTask={handleOnClickEditTask}
+                />
+              </div>
+
+              <div className="w-[5%]">
+                <DueDateSelector
+                  task={todo}
+                  dueDateChange={handleDueDateChangeOFTodo}
+                />
+              </div>
+            </div>
           )
         )}
       </div>
