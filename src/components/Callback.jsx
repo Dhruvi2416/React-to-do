@@ -17,10 +17,14 @@ const Callback = () => {
   }, []);
 
   //Handle search term with useCallback with dependancy array of searchTerm because it is used inside the function
+  //   When the useCallback is created, it captures the current value of searchTerm at that moment (from the surrounding scope).
+  // Since your dependency array is [] (empty), the callback is memoized once — and never updated again.
+  // So even if searchTerm changes in the future, the handleSearchTermChange will still be referencing the stale/old value of searchTerm.
+
   // const handleSearchTermChange = useCallback((newTerm) => {
   //   console.log("SEARCH TERM CHANGED", searchTerm);
   //   setSearchTerm(newTerm);
-  // }, []);
+  // }, [searchTerm]);
 
   return (
     <div>
