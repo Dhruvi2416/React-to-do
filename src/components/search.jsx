@@ -1,15 +1,20 @@
-import { React, memo } from "react";
+import { React, memo, useContext } from "react";
+import { SearchTermContext } from "./Callback";
 
-const search = ({ searchTerm, handleSearchFunction }) => {
+const search = () => {
   console.log("SEARCH COMPOENNT YAY!!!");
+  const { searchTerm: searchTerms, handleSearchTermChange } =
+    useContext(SearchTermContext);
+  console.log("SSSS", searchTerms);
   return (
     <div>
       <input
         type="text"
         placeholder="Search..."
-        value={searchTerm}
-        onChange={(e) => handleSearchFunction(e.target.value)}
+        value={searchTerms}
+        onChange={(e) => handleSearchTermChange(e.target.value)}
       />
+      Searchterms: {searchTerms}
     </div>
   );
 };
