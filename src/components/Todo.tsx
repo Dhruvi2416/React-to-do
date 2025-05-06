@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
-import { TodoItem } from "./TodoWrapper";
+import { TodoItem } from "../types";
 
 type TodoProps = {
   task: TodoItem;

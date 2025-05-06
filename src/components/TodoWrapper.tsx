@@ -5,15 +5,8 @@ import Todo from "./Todo";
 import EditTodoForm from "./EditTodoForm";
 import TodoFilter from "./TodoFilter";
 import DueDateSelector from "./DueDateSelector";
+import { TodoItem } from "../types";
 
-export type TodoItem = {
-  id: string;
-  task: string;
-  completed: boolean;
-  isEditing: boolean;
-  createdAt: number;
-  dueDate: number;
-};
 
 const TodoWrapper: React.FC = () => {
   const [todos, setTodos] = useState<TodoItem[]>(() =>

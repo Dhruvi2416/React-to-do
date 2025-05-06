@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import { TodoItem } from "./TodoWrapper";
+import { TodoItem } from "../types";
 
 type EditTodoProps = {
   editTodo: (id: string, task: string, undoEdit: boolean) => void;

@@ -3,7 +3,8 @@ import DatePicker from "react-datepicker";
 // import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
 import "react-datepicker/dist/react-datepicker.css";
 import React, { useState, useRef } from "react";
-import { TodoItem } from "./TodoWrapper";
+import { TodoItem } from "../types";
+
 type DatePickerProps = {
   task: TodoItem;
   dueDateChange: (id: string, newDate: number) => void;
