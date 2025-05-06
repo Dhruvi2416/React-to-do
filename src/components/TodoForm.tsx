@@ -1,17 +1,21 @@
 import React from "react";
 import { useState } from "react";
-const TodoForm = ({ addTodo }) => {
+
+type TodoFormProps = {
+  addTodo: (todo: string) => void;
+};
+const TodoForm: React.FC<TodoFormProps> = ({ addTodo }) => {
   const [newTask, setNewTask] = useState("");
   const [showError, setShowError] = useState("");
 
   //handle Key Down Changes
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Escape") {
       setNewTask("");
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     //prevents default behaviour for form submit
     e.preventDefault();
     if (!newTask) {

@@ -6,15 +6,26 @@ import EditTodoForm from "./EditTodoForm";
 import TodoFilter from "./TodoFilter";
 import DueDateSelector from "./DueDateSelector";
 
-const TodoWrapper = () => {
-  const [todos, setTodos] = useState(() => {
-    return JSON.parse(localStorage.getItem("todosStored")) || [];
-  });
-  const [filterType, setFilterType] = useState("all");
-  const [sortByOldest, setSortByOldest] = useState(false);
+export type TodoItem = {
+  id: string;
+  task: string;
+  completed: boolean;
+  isEditing: boolean;
+  createdAt: number;
+  dueDate: number;
+};
+
+const TodoWrapper: React.FC = () => {
+  const [todos, setTodos] = useState<TodoItem[]>(() =>
+    JSON.parse(localStorage.getItem("todosStored") || "[]")
+  );
+  const [filterType, setFilterType] = useState<"all" | "pending" | "completed">(
+    "all"
+  );
+  const [sortByOldest, setSortByOldest] = useState<boolean>(false);
 
   //sortedAndFilteredTodos
-  const sortedAndFilteredTodos = useMemo(() => {
+  const sortedAndFilteredTodos = useMemo<TodoItem[]>(() => {
     let filteredTodos = todos;
     switch (filterType) {
       case "completed":
@@ -32,7 +43,7 @@ const TodoWrapper = () => {
   }, [todos, filterType, sortByOldest]);
 
   // Add new todo
-  const addTodos = (todo) => {
+  const addTodos = (todo: string) => {
     setTodos((prevTodos) => [
       {
         id: uuidv4(),
@@ -47,7 +58,7 @@ const TodoWrapper = () => {
   };
 
   // Toggle complete status
-  const toggleComplete = (id) => {
+  const toggleComplete = (id: string) => {
     setTodos((prev) =>
       prev.map((todo) =>
         todo.id === id ? { ...todo, completed: !todo.completed } : todo
@@ -56,14 +67,14 @@ const TodoWrapper = () => {
   };
 
   // Delete task
-  const handleDeleteTask = (id) => {
+  const handleDeleteTask = (id: string) => {
     if (window.confirm("Are you sure you want to delete the task?")) {
       setTodos((prev) => prev.filter((todo) => todo.id !== id));
     }
   };
 
   // Toggle edit mode
-  const handleOnClickEditTask = (id) => {
+  const handleOnClickEditTask = (id: string) => {
     setTodos((prev) =>
       prev.map((todo) =>
         todo.id === id ? { ...todo, isEditing: !todo.isEditing } : todo
@@ -72,7 +83,11 @@ const TodoWrapper = () => {
   };
 
   // Handle task edit
-  const handleEditTodo = (id, task, undoEdit = false) => {
+  const handleEditTodo = (
+    id: string,
+    task: string,
+    undoEdit: boolean = false
+  ) => {
     setTodos((prev) =>
       prev.map((todo) =>
         todo.id === id
@@ -83,7 +98,7 @@ const TodoWrapper = () => {
   };
 
   //Handle Due Date Change of a todo
-  const handleDueDateChangeOFTodo = (id, newDueDate) => {
+  const handleDueDateChangeOFTodo = (id: string, newDueDate: number) => {
     setTodos((prev) =>
       prev.map((todo) =>
         todo.id === id
@@ -112,7 +127,6 @@ const TodoWrapper = () => {
             <div className="flex justify-between" key={todo.id}>
               <div className="w-[95%]">
                 <Todo
-                  className="p-5"
                   task={todo}
                   toggleComplete={toggleComplete}
                   deleteTask={handleDeleteTask}

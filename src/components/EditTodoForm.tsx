@@ -1,11 +1,17 @@
 import React from "react";
 import { useState } from "react";
-const EditTodoForm = ({ editTodo, task }) => {
+import { TodoItem } from "./TodoWrapper";
+
+type EditTodoProps = {
+  editTodo: (id: string, task: string, undoEdit: boolean) => void;
+  task: TodoItem;
+};
+const EditTodoForm: React.FC<EditTodoProps> = ({ editTodo, task }) => {
   const [newTask, setNewTask] = useState(task.task);
   const [showError, setShowError] = useState("");
   const [undoEdit, setUndoEdit] = useState(false);
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Escape") {
       const undoEditedTask = !undoEdit;
       setUndoEdit((prev) => !prev);
@@ -13,7 +19,7 @@ const EditTodoForm = ({ editTodo, task }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     //prevents default behaviour for form submit
     e.preventDefault();
     if (!newTask) {
@@ -21,7 +27,7 @@ const EditTodoForm = ({ editTodo, task }) => {
       return;
     }
     setShowError("");
-    editTodo(task.id, newTask);
+    editTodo(task.id, newTask, true);
     setNewTask("");
   };
   return (
