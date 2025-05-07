@@ -1,17 +1,25 @@
 import React from "react";
 import { useState } from "react";
-const TodoForm = ({ addTodo }) => {
-  const [newTask, setNewTask] = useState("");
-  const [showError, setShowError] = useState("");
+import { TodoItem } from "../types";
 
-  //handle Key Down Changes
-  const handleKeyDown = (e) => {
+type EditTodoProps = {
+  editTodo: (id: string, task: string, undoEdit: boolean) => void;
+  task: TodoItem;
+};
+const EditTodoForm: React.FC<EditTodoProps> = ({ editTodo, task }) => {
+  const [newTask, setNewTask] = useState(task.task);
+  const [showError, setShowError] = useState("");
+  const [undoEdit, setUndoEdit] = useState(false);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Escape") {
-      setNewTask("");
+      const undoEditedTask = !undoEdit;
+      setUndoEdit((prev) => !prev);
+      editTodo(task.id, newTask, undoEditedTask);
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     //prevents default behaviour for form submit
     e.preventDefault();
     if (!newTask) {
@@ -19,26 +27,25 @@ const TodoForm = ({ addTodo }) => {
       return;
     }
     setShowError("");
-    addTodo(newTask);
+    editTodo(task.id, newTask, true);
     setNewTask("");
   };
   return (
-    <form className="TodoForm py-5" onSubmit={handleSubmit}>
+    <form className="EditTodoForm py-2 " onSubmit={handleSubmit}>
       <div className="border-1 border-purple-500 flex justify-between">
         <input
           onKeyDown={(e) => {
             handleKeyDown(e);
           }}
           type="text"
-          className="todo-input  p-2  focus:outline-none focus:ring-0 focus:border-transparent"
+          className="todo-input p-2  focus:outline-none focus:ring-0 focus:border-transparent"
           placeholder="Add a new task"
           value={newTask}
-          autoFocus
           //here value is needed as on emptying the todo it does not react explicitly as it is not binded
           onChange={(e) => setNewTask(e.target.value)}
         />
         <button type="submit" className="todo-btn">
-          Add
+          Update
         </button>
       </div>
       {showError ? <p className="error">{showError}</p> : <p></p>}
@@ -46,4 +53,4 @@ const TodoForm = ({ addTodo }) => {
   );
 };
 
-export default TodoForm;
+export default EditTodoForm;

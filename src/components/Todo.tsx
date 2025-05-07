@@ -3,8 +3,22 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
+import { TodoItem } from "../types";
 
-const Todo = ({ task, toggleComplete, deleteTask, onClickEditTask }) => {
+type TodoProps = {
+  task: TodoItem;
+  toggleComplete: (id: string) => void;
+  deleteTask: (id: string) => void;
+  onClickEditTask: (id: string) => void;
+  className?: string;
+};
+const Todo: React.FC<TodoProps> = ({
+  task,
+  toggleComplete,
+  deleteTask,
+  onClickEditTask,
+  className = "",
+}) => {
   //check if the task is expired
   const isTaskExpired = () => {
     const currentDate = moment().startOf("day");
@@ -13,7 +27,7 @@ const Todo = ({ task, toggleComplete, deleteTask, onClickEditTask }) => {
   };
 
   return (
-    <div className="Todo flex my-2 p-2 justify-between ">
+    <div className={`Todo flex my-2 p-2 justify-between ${className}`}>
       <div className="flex">
         <input
           type="checkbox"

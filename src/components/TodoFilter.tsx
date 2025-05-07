@@ -1,6 +1,19 @@
 import React from "react";
 
-const TodoFilter = ({ onFilterChange, filterType, onSortByOldest, sort }) => {
+type TodoFilterProps = {
+  onFilterChange: React.Dispatch<
+    React.SetStateAction<"all" | "completed" | "pending">
+  >;
+  filterType: string;
+  onSortByOldest: React.Dispatch<React.SetStateAction<boolean>>;
+  sort: boolean;
+};
+const TodoFilter: React.FC<TodoFilterProps> = ({
+  onFilterChange,
+  filterType,
+  onSortByOldest,
+  sort,
+}) => {
   return (
     <div className="flex gap-2">
       <div>
