@@ -5,17 +5,19 @@ import { TodoItem } from "../types";
 type EditTodoProps = {
   editTodo: (id: string, task: string, undoEdit: boolean) => void;
   task: TodoItem;
+  onEscEditTask: (id: string) => void;
 };
-const EditTodoForm: React.FC<EditTodoProps> = ({ editTodo, task }) => {
+const EditTodoForm: React.FC<EditTodoProps> = ({
+  editTodo,
+  task,
+  onEscEditTask,
+}) => {
   const [newTask, setNewTask] = useState(task.task);
   const [showError, setShowError] = useState("");
-  const [undoEdit, setUndoEdit] = useState(false);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Escape") {
-      const undoEditedTask = !undoEdit;
-      setUndoEdit((prev) => !prev);
-      editTodo(task.id, newTask, undoEditedTask);
+      onEscEditTask(task.id);
     }
   };
 
@@ -27,7 +29,7 @@ const EditTodoForm: React.FC<EditTodoProps> = ({ editTodo, task }) => {
       return;
     }
     setShowError("");
-    editTodo(task.id, newTask, true);
+    editTodo(task.id, newTask, false);
     setNewTask("");
   };
   return (
