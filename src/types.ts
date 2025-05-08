@@ -6,3 +6,8 @@ export type TodoItem = {
   createdAt: number;
   dueDate: number;
 };
+
+export type lastActionType = {
+  type?: string;
+  performedOn?: TodoItem;
+};

@@ -5,8 +5,8 @@ import Todo from "./Todo";
 import EditTodoForm from "./EditTodoForm";
 import TodoFilter from "./TodoFilter";
 import DueDateSelector from "./DueDateSelector";
-import { TodoItem } from "../types";
-
+import { TodoItem, lastActionType } from "../types";
+import UndoTask from "./UndoTask";
 
 const TodoWrapper: React.FC = () => {
   const [todos, setTodos] = useState<TodoItem[]>(() =>
@@ -16,6 +16,8 @@ const TodoWrapper: React.FC = () => {
     "all"
   );
   const [sortByOldest, setSortByOldest] = useState<boolean>(false);
+  const [lastActions, setLastActions] = useState<lastActionType[]>([]);
+  // const[undoStack,setUndoStack] = useState([]);
 
   //sortedAndFilteredTodos
   const sortedAndFilteredTodos = useMemo<TodoItem[]>(() => {
@@ -37,17 +39,21 @@ const TodoWrapper: React.FC = () => {
 
   // Add new todo
   const addTodos = (todo: string) => {
-    setTodos((prevTodos) => [
-      {
-        id: uuidv4(),
-        task: todo,
-        completed: false,
-        isEditing: false,
-        createdAt: Date.now(),
-        dueDate: Date.now(),
-      },
-      ...prevTodos,
-    ]);
+    const newTodo = {
+      id: uuidv4(),
+      task: todo,
+      completed: false,
+      isEditing: false,
+      createdAt: Date.now(),
+      dueDate: Date.now(),
+    };
+    setTodos((prevTodos) => [newTodo, ...prevTodos]);
+
+    const lastPerformedActions = [
+      ...lastActions.slice(-2),
+      { type: "add", performedOn: newTodo },
+    ];
+    setLastActions(lastPerformedActions);
   };
 
   // Toggle complete status
@@ -60,9 +66,19 @@ const TodoWrapper: React.FC = () => {
   };
 
   // Delete task
-  const handleDeleteTask = (id: string) => {
+  const handleDeleteTask = (id: string, actionPerformedByUndoing = false) => {
     if (window.confirm("Are you sure you want to delete the task?")) {
+      //used find instead of filter a sfilter returns [] but we need {}
+      const taskToBeDeleted = todos.find((todo) => todo.id === id);
       setTodos((prev) => prev.filter((todo) => todo.id !== id));
+
+      if (!actionPerformedByUndoing) {
+        const lastPerformedActions = [
+          ...lastActions.slice(-2),
+          { type: "delete", performedOn: taskToBeDeleted },
+        ];
+        setLastActions(lastPerformedActions);
+      }
     }
   };
 
@@ -79,19 +95,27 @@ const TodoWrapper: React.FC = () => {
   const handleEditTodo = (
     id: string,
     task: string,
-    undoEdit: boolean = false
+    actionPerformedByUndoing = false
   ) => {
+    if (!actionPerformedByUndoing) {
+      const editTask = todos.find((todo) => todo.id === id);
+
+      const lastPerformedActions = [
+        ...lastActions.slice(-2),
+        { type: "edit", performedOn: editTask },
+      ];
+      setLastActions(lastPerformedActions);
+    }
+
     setTodos((prev) =>
       prev.map((todo) =>
-        todo.id === id
-          ? { ...todo, isEditing: false, ...(undoEdit ? {} : { task }) }
-          : todo
+        todo.id === id ? { ...todo, isEditing: false, ...{ task } } : todo
       )
     );
   };
 
   //Handle Due Date Change of a todo
-  const handleDueDateChangeOFTodo = (id: string, newDueDate: number) => {
+  const handleDueDateChangeOfTodo = (id: string, newDueDate: number) => {
     setTodos((prev) =>
       prev.map((todo) =>
         todo.id === id
@@ -99,6 +123,33 @@ const TodoWrapper: React.FC = () => {
           : todo
       )
     );
+  };
+
+  //handle undo task
+  const handleUndoTask = () => {
+    if (lastActions.length) {
+      const performedTask = lastActions.pop();
+      if (performedTask && performedTask.performedOn) {
+        switch (performedTask?.type) {
+          case "add":
+            handleDeleteTask(performedTask?.performedOn?.id, true);
+            break;
+
+          case "delete":
+            const task = performedTask.performedOn!;
+            setTodos((prevTodos) => [task, ...prevTodos]);
+            break;
+
+          case "edit":
+            handleEditTodo(
+              performedTask?.performedOn?.id,
+              performedTask?.performedOn?.task,
+              true
+            );
+            break;
+        }
+      }
+    }
   };
 
   // Store todos in localStorage
@@ -115,7 +166,12 @@ const TodoWrapper: React.FC = () => {
       <div className="todolist">
         {sortedAndFilteredTodos.map((todo, index) =>
           todo.isEditing ? (
-            <EditTodoForm task={todo} key={todo.id} editTodo={handleEditTodo} />
+            <EditTodoForm
+              task={todo}
+              key={todo.id}
+              editTodo={handleEditTodo}
+              onEscEditTask={handleOnClickEditTask}
+            />
           ) : (
             <div className="flex justify-between" key={todo.id}>
               <div className="w-[95%]">
@@ -130,7 +186,7 @@ const TodoWrapper: React.FC = () => {
               <div className="w-[5%]">
                 <DueDateSelector
                   task={todo}
-                  dueDateChange={handleDueDateChangeOFTodo}
+                  dueDateChange={handleDueDateChangeOfTodo}
                 />
               </div>
             </div>
@@ -143,6 +199,7 @@ const TodoWrapper: React.FC = () => {
         onSortByOldest={setSortByOldest}
         sort={sortByOldest}
       />
+      <UndoTask undoTask={handleUndoTask} />
     </div>
   );
 };

@@ -50,7 +50,15 @@ const Todo: React.FC<TodoProps> = ({
           >
             {task.task}
           </p>
-          <p className={`${isTaskExpired() ? "taskexpired" : ""} mx-2`}>
+          <p
+            className={`${
+              task.completed
+                ? ""
+                : isTaskExpired()
+                ? "taskexpired"
+                : ""
+            } mx-2`}
+          >
             Due Date: {new Date(task.dueDate).toLocaleDateString()}
           </p>
         </div>
