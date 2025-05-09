@@ -32,7 +32,10 @@ const UndoTask: React.FC = () => {
               performedOn: performedTask?.performedOn,
             };
             if (isRedo) {
-              const lastPerformedActions = [...lastActions, lastUndoActions];
+              const lastPerformedActions = [
+                ...lastActions.slice(-2),
+                lastUndoActions,
+              ];
               setLastActions(lastPerformedActions);
             } else {
               setRedoActions((prevActions) => [
@@ -52,7 +55,10 @@ const UndoTask: React.FC = () => {
             };
 
             if (isRedo) {
-              const lastPerformedActions = [...lastActions, lastUndoActions];
+              const lastPerformedActions = [
+                ...lastActions.slice(-2),
+                lastUndoActions,
+              ];
               setLastActions(lastPerformedActions);
             } else {
               setRedoActions((prevActions) => [
@@ -76,7 +82,10 @@ const UndoTask: React.FC = () => {
             };
 
             if (isRedo) {
-              const lastPerformedActions = [...lastActions, lastUndoActions];
+              const lastPerformedActions = [
+                ...lastActions.slice(-2),
+                lastUndoActions,
+              ];
               setLastActions(lastPerformedActions);
             } else {
               setRedoActions((prevActions) => [

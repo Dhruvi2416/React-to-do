@@ -41,7 +41,7 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
       const editTask = todos.find((todo) => todo.id === id);
       if (editTask) {
         const lastPerformedActions = [
-          ...lastActions,
+          ...lastActions.slice(-2),
           { type: "edit", performedOn: editTask },
         ];
         setLastActions(lastPerformedActions);
@@ -71,7 +71,7 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (!actionPerformedByUndoRedo && taskToBeDeleted) {
         const lastPerformedActions = [
-          ...lastActions,
+          ...lastActions.slice(-2),
           { type: "delete", performedOn: taskToBeDeleted },
         ];
         setLastActions(lastPerformedActions);
