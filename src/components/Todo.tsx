@@ -4,26 +4,50 @@ import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import { TodoItem } from "../types";
+import { useTodoContext } from "../providers/TodoProvider";
 
 type TodoProps = {
   task: TodoItem;
-  toggleComplete: (id: string) => void;
-  deleteTask: (id: string) => void;
   onClickEditTask: (id: string) => void;
   className?: string;
 };
 const Todo: React.FC<TodoProps> = ({
   task,
-  toggleComplete,
-  deleteTask,
   onClickEditTask,
   className = "",
 }) => {
+  const { todos, setTodos, lastActions, setLastActions } = useTodoContext();
+
   //check if the task is expired
   const isTaskExpired = () => {
     const currentDate = moment().startOf("day");
     const dueDate = moment(task.dueDate).startOf("day");
     return dueDate.isBefore(currentDate);
+  };
+  // Toggle complete status
+  const toggleComplete = (id: string) => {
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
+  };
+
+  // Delete task
+  const handleDeleteTask = (id: string, actionPerformedByUndoing = false) => {
+    if (window.confirm("Are you sure you want to delete the task?")) {
+      //used find instead of filter a sfilter returns [] but we need {}
+      const taskToBeDeleted = todos.find((todo) => todo.id === id);
+      setTodos((prev) => prev.filter((todo) => todo.id !== id));
+
+      if (!actionPerformedByUndoing && taskToBeDeleted) {
+        const lastPerformedActions = [
+          ...lastActions.slice(-2),
+          { type: "delete", performedOn: taskToBeDeleted },
+        ];
+        setLastActions(lastPerformedActions);
+      }
+    }
   };
 
   return (
@@ -52,11 +76,7 @@ const Todo: React.FC<TodoProps> = ({
           </p>
           <p
             className={`${
-              task.completed
-                ? ""
-                : isTaskExpired()
-                ? "taskexpired"
-                : ""
+              task.completed ? "" : isTaskExpired() ? "taskexpired" : ""
             } mx-2`}
           >
             Due Date: {new Date(task.dueDate).toLocaleDateString()}
@@ -72,7 +92,7 @@ const Todo: React.FC<TodoProps> = ({
         <FontAwesomeIcon
           className="p-2"
           icon={faTrash}
-          onClick={() => deleteTask(task.id)}
+          onClick={() => handleDeleteTask(task.id)}
         />
       </div>
     </div>

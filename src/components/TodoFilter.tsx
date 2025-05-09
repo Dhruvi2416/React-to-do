@@ -15,7 +15,7 @@ const TodoFilter: React.FC<TodoFilterProps> = ({
   sort,
 }) => {
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 mt-2">
       <div>
         <input
           checked={filterType === "completed"}

@@ -4,26 +4,36 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import React, { useState, useRef } from "react";
 import { TodoItem } from "../types";
+import { useTodoContext } from "../providers/TodoProvider";
 
 type DatePickerProps = {
   task: TodoItem;
-  dueDateChange: (id: string, newDate: number) => void;
 };
-const DueDateSelector: React.FC<DatePickerProps> = ({
-  task,
-  dueDateChange,
-}) => {
+const DueDateSelector: React.FC<DatePickerProps> = ({ task }) => {
+  const { todos, setTodos, lastActions, setLastActions } = useTodoContext();
+
   const [dueDate, setDueDate] = useState<number>(task.dueDate);
-  // const startRef = useRef(null);
 
   //Handle Due date change
   const onDateChange = (newDate: Date | null) => {
     if (newDate) {
       const timestamp = newDate.getTime(); // Convert to timestamp (number)
       setDueDate(timestamp); // Update state with timestamp
-      dueDateChange(task.id, timestamp); // Pass the timestamp to the parent component
+      handleDueDateChangeOfTodo(task.id, timestamp); // Pass the timestamp to the parent component
     }
   };
+
+  //Handle Due Date Change of a todo
+  const handleDueDateChangeOfTodo = (id: string, newDueDate: number) => {
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === id
+          ? { ...todo, dueDate: newDueDate } // Update the due date here
+          : todo
+      )
+    );
+  };
+
   return (
     <div>
       {/* <label> */}

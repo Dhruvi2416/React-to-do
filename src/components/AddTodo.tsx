@@ -1,10 +1,10 @@
+import { v4 as uuidv4 } from "uuid";
 import React from "react";
 import { useState } from "react";
+import { useTodoContext } from "../providers/TodoProvider";
 
-type TodoFormProps = {
-  addTodo: (todo: string) => void;
-};
-const TodoForm: React.FC<TodoFormProps> = ({ addTodo }) => {
+const AddTodo: React.FC = () => {
+  const { todos, setTodos, lastActions, setLastActions } = useTodoContext();
   const [newTask, setNewTask] = useState("");
   const [showError, setShowError] = useState("");
 
@@ -15,6 +15,25 @@ const TodoForm: React.FC<TodoFormProps> = ({ addTodo }) => {
     }
   };
 
+  // Add new todo
+  const addTodos = (todo: string) => {
+    const newTodo = {
+      id: uuidv4(),
+      task: todo,
+      completed: false,
+      isEditing: false,
+      createdAt: Date.now(),
+      dueDate: Date.now(),
+    };
+    setTodos((prevTodos) => [newTodo, ...prevTodos]);
+
+    const lastPerformedActions = [
+      ...lastActions.slice(-2),
+      { type: "add", performedOn: newTodo },
+    ];
+    setLastActions(lastPerformedActions);
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     //prevents default behaviour for form submit
     e.preventDefault();
@@ -23,11 +42,12 @@ const TodoForm: React.FC<TodoFormProps> = ({ addTodo }) => {
       return;
     }
     setShowError("");
-    addTodo(newTask);
+    addTodos(newTask);
     setNewTask("");
   };
+
   return (
-    <form className="TodoForm py-5" onSubmit={handleSubmit}>
+    <form className="AddTodo py-5" onSubmit={handleSubmit}>
       <div className="border-1 border-purple-500 flex justify-between">
         <input
           onKeyDown={(e) => {
@@ -50,4 +70,4 @@ const TodoForm: React.FC<TodoFormProps> = ({ addTodo }) => {
   );
 };
 
-export default TodoForm;
+export default AddTodo;
