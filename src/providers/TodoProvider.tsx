@@ -16,9 +16,9 @@ type TodoContextType = {
   handleEditTodo: (
     id: string,
     task: string,
-    actionPerformedByUndoing: boolean
+    actionPerformedByUndoRedo: boolean
   ) => void;
-  handleDeleteTask: (id: string, actionPerformedByUndoing?: boolean) => void;
+  handleDeleteTask: (id: string, actionPerformedByUndoRedo?: boolean) => void;
   redoActions: LastActionType[];
   setRedoActions: Dispatch<SetStateAction<LastActionType[]>>;
 };
@@ -35,13 +35,13 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
   const handleEditTodo = (
     id: string,
     task: string,
-    actionPerformedByUndoing = false
+    actionPerformedByUndoRedo = false
   ) => {
-    if (!actionPerformedByUndoing) {
+    if (!actionPerformedByUndoRedo) {
       const editTask = todos.find((todo) => todo.id === id);
       if (editTask) {
         const lastPerformedActions = [
-          ...lastActions.slice(-2),
+          ...lastActions,
           { type: "edit", performedOn: editTask },
         ];
         setLastActions(lastPerformedActions);
@@ -57,15 +57,21 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   // Delete task
-  const handleDeleteTask = (id: string, actionPerformedByUndoing = false) => {
-    if (window.confirm("Are you sure you want to delete the task?")) {
-      //used find instead of filter a sfilter returns [] but we need {}
+  const handleDeleteTask = (id: string, actionPerformedByUndoRedo = false) => {
+    const permissionNeeded = actionPerformedByUndoRedo ? false : true;
+
+    if (
+      permissionNeeded
+        ? window.confirm("Are you sure you want to delete the task?")
+        : actionPerformedByUndoRedo
+    ) {
+      //used find instead of filter a filter returns [] but we need {}
       const taskToBeDeleted = todos.find((todo) => todo.id === id);
       setTodos((prev) => prev.filter((todo) => todo.id !== id));
 
-      if (!actionPerformedByUndoing && taskToBeDeleted) {
+      if (!actionPerformedByUndoRedo && taskToBeDeleted) {
         const lastPerformedActions = [
-          ...lastActions.slice(-2),
+          ...lastActions,
           { type: "delete", performedOn: taskToBeDeleted },
         ];
         setLastActions(lastPerformedActions);

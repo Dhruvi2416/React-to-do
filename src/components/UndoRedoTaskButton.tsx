@@ -32,10 +32,7 @@ const UndoTask: React.FC = () => {
               performedOn: performedTask?.performedOn,
             };
             if (isRedo) {
-              const lastPerformedActions = [
-                ...lastActions.slice(-2),
-                lastUndoActions,
-              ];
+              const lastPerformedActions = [...lastActions, lastUndoActions];
               setLastActions(lastPerformedActions);
             } else {
               setRedoActions((prevActions) => [
@@ -55,10 +52,7 @@ const UndoTask: React.FC = () => {
             };
 
             if (isRedo) {
-              const lastPerformedActions = [
-                ...lastActions.slice(-2),
-                lastUndoActions,
-              ];
+              const lastPerformedActions = [...lastActions, lastUndoActions];
               setLastActions(lastPerformedActions);
             } else {
               setRedoActions((prevActions) => [
@@ -82,10 +76,7 @@ const UndoTask: React.FC = () => {
             };
 
             if (isRedo) {
-              const lastPerformedActions = [
-                ...lastActions.slice(-2),
-                lastUndoActions,
-              ];
+              const lastPerformedActions = [...lastActions, lastUndoActions];
               setLastActions(lastPerformedActions);
             } else {
               setRedoActions((prevActions) => [
@@ -104,6 +95,7 @@ const UndoTask: React.FC = () => {
     <div className="flex justify-center">
       <button
         type="button"
+        disabled={lastActions.length === 0}
         className="m-2 p-2 text-black bg-white"
         onClick={() => handleUndoRedoTask()}
       >
@@ -112,6 +104,7 @@ const UndoTask: React.FC = () => {
       </button>
       <button
         type="button"
+        disabled={redoActions.length === 0}
         className="m-2 p-2 text-black bg-white"
         onClick={() => handleUndoRedoTask(true)}
       >
