@@ -15,7 +15,7 @@ const TodoWrapper: React.FC = () => {
     "all"
   );
   const [sortByOldest, setSortByOldest] = useState<boolean>(false);
-  const [redoActions, setRedoActions] = useState<LastActionType[]>([]);
+  
 
   //sortedAndFilteredTodos
   const sortedAndFilteredTodos = useMemo<TodoItem[]>(() => {
@@ -43,61 +43,6 @@ const TodoWrapper: React.FC = () => {
       )
     );
   };
-
-  //handle undo task
-  // const handleUndoTask = () => {
-  //   if (lastActions.length) {
-  //     const performedTask = lastActions.pop();
-  //     if (performedTask && performedTask.performedOn) {
-  //       switch (performedTask?.type) {
-  //         case "add": {
-  //           handleDeleteTask(performedTask?.performedOn?.id, true);
-
-  //           const lastUndoActions = {
-  //             type: "delete",
-  //             performedOn: performedTask?.performedOn,
-  //           };
-
-  //           setRedoActions((prevActions) => [...prevActions, lastUndoActions]);
-  //           break;
-  //         }
-
-  //         case "delete": {
-  //           const task = performedTask.performedOn;
-  //           setTodos((prevTodos) => [task, ...prevTodos]);
-  //           const lastUndoActions = {
-  //             type: "add",
-  //             performedOn: performedTask?.performedOn,
-  //           };
-
-  //           setRedoActions((prevActions) => [...prevActions, lastUndoActions]);
-  //           break;
-  //         }
-
-  //         case "edit": {
-  //           handleEditTodo(
-  //             performedTask?.performedOn?.id,
-  //             performedTask?.performedOn?.task,
-  //             true
-  //           );
-  //           const lastUndoActions = {
-  //             type: "edit",
-  //             performedOn: performedTask?.performedOn,
-  //           };
-
-  //           setRedoActions((prevActions) => [...prevActions, lastUndoActions]);
-  //           break;
-  //         }
-  //       }
-  //     }
-  //   }
-  // };
-
-  // // Store todos in localStorage
-  // useEffect(() => {
-  //   localStorage.setItem("todosStored", JSON.stringify(todos));
-  //   console.log(redoActions);
-  // }, [todos]);
 
   return (
     <div className="TodoWrapper">
@@ -132,7 +77,7 @@ const TodoWrapper: React.FC = () => {
         onSortByOldest={setSortByOldest}
         sort={sortByOldest}
       />
-      {/* <UndoTask undoTask={handleUndoTask} />   */}
+      <UndoTask />
     </div>
   );
 };

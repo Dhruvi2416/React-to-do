@@ -13,6 +13,14 @@ type TodoContextType = {
   setTodos: Dispatch<SetStateAction<TodoItem[]>>;
   lastActions: LastActionType[];
   setLastActions: Dispatch<SetStateAction<LastActionType[]>>;
+  handleEditTodo: (
+    id: string,
+    task: string,
+    actionPerformedByUndoing: boolean
+  ) => void;
+  handleDeleteTask: (id: string, actionPerformedByUndoing?: boolean) => void;
+  redoActions: LastActionType[];
+  setRedoActions: Dispatch<SetStateAction<LastActionType[]>>;
 };
 const TodoContext = createContext<TodoContextType | null>(null);
 const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -22,6 +30,49 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
     JSON.parse(localStorage.getItem("todosStored") || "[]")
   );
   const [lastActions, setLastActions] = useState<LastActionType[]>([]);
+  const [redoActions, setRedoActions] = useState<LastActionType[]>([]);
+  // Handle task edit
+  const handleEditTodo = (
+    id: string,
+    task: string,
+    actionPerformedByUndoing = false
+  ) => {
+    if (!actionPerformedByUndoing) {
+      const editTask = todos.find((todo) => todo.id === id);
+      if (editTask) {
+        const lastPerformedActions = [
+          ...lastActions.slice(-2),
+          { type: "edit", performedOn: editTask },
+        ];
+        setLastActions(lastPerformedActions);
+        setRedoActions([]);
+      }
+    }
+
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === id ? { ...todo, isEditing: false, ...{ task } } : todo
+      )
+    );
+  };
+
+  // Delete task
+  const handleDeleteTask = (id: string, actionPerformedByUndoing = false) => {
+    if (window.confirm("Are you sure you want to delete the task?")) {
+      //used find instead of filter a sfilter returns [] but we need {}
+      const taskToBeDeleted = todos.find((todo) => todo.id === id);
+      setTodos((prev) => prev.filter((todo) => todo.id !== id));
+
+      if (!actionPerformedByUndoing && taskToBeDeleted) {
+        const lastPerformedActions = [
+          ...lastActions.slice(-2),
+          { type: "delete", performedOn: taskToBeDeleted },
+        ];
+        setLastActions(lastPerformedActions);
+        setRedoActions([]);
+      }
+    }
+  };
 
   // Store todos in localStorage
   useEffect(() => {
@@ -30,7 +81,16 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <TodoContext.Provider
-      value={{ todos, setTodos, lastActions, setLastActions }}
+      value={{
+        todos,
+        setTodos,
+        lastActions,
+        setLastActions,
+        handleEditTodo,
+        handleDeleteTask,
+        redoActions,
+        setRedoActions,
+      }}
     >
       {children}
     </TodoContext.Provider>

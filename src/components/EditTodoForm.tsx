@@ -8,7 +8,7 @@ type EditTodoProps = {
   onEscEditTask: (id: string) => void;
 };
 const EditTodoForm: React.FC<EditTodoProps> = ({ task, onEscEditTask }) => {
-  const { todos, setTodos, lastActions, setLastActions } = useTodoContext();
+  const { handleEditTodo } = useTodoContext();
 
   const [newTask, setNewTask] = useState(task.task);
   const [showError, setShowError] = useState("");
@@ -17,30 +17,6 @@ const EditTodoForm: React.FC<EditTodoProps> = ({ task, onEscEditTask }) => {
     if (e.key === "Escape") {
       onEscEditTask(task.id);
     }
-  };
-
-  // Handle task edit
-  const handleEditTodo = (
-    id: string,
-    task: string,
-    actionPerformedByUndoing = false
-  ) => {
-    if (!actionPerformedByUndoing) {
-      const editTask = todos.find((todo) => todo.id === id);
-      if (editTask) {
-        const lastPerformedActions = [
-          ...lastActions.slice(-2),
-          { type: "edit", performedOn: editTask },
-        ];
-        setLastActions(lastPerformedActions);
-      }
-    }
-
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id ? { ...todo, isEditing: false, ...{ task } } : todo
-      )
-    );
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

@@ -4,7 +4,14 @@ import { useState } from "react";
 import { useTodoContext } from "../providers/TodoProvider";
 
 const AddTodo: React.FC = () => {
-  const { todos, setTodos, lastActions, setLastActions } = useTodoContext();
+  const {
+    todos,
+    setTodos,
+    lastActions,
+    setLastActions,
+    redoActions,
+    setRedoActions,
+  } = useTodoContext();
   const [newTask, setNewTask] = useState("");
   const [showError, setShowError] = useState("");
 
@@ -32,6 +39,7 @@ const AddTodo: React.FC = () => {
       { type: "add", performedOn: newTodo },
     ];
     setLastActions(lastPerformedActions);
+    setRedoActions([]);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

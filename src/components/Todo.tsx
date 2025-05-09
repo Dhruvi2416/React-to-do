@@ -16,7 +16,8 @@ const Todo: React.FC<TodoProps> = ({
   onClickEditTask,
   className = "",
 }) => {
-  const { todos, setTodos, lastActions, setLastActions } = useTodoContext();
+  const { todos, setTodos, lastActions, setLastActions, handleDeleteTask } =
+    useTodoContext();
 
   //check if the task is expired
   const isTaskExpired = () => {
@@ -31,23 +32,6 @@ const Todo: React.FC<TodoProps> = ({
         todo.id === id ? { ...todo, completed: !todo.completed } : todo
       )
     );
-  };
-
-  // Delete task
-  const handleDeleteTask = (id: string, actionPerformedByUndoing = false) => {
-    if (window.confirm("Are you sure you want to delete the task?")) {
-      //used find instead of filter a sfilter returns [] but we need {}
-      const taskToBeDeleted = todos.find((todo) => todo.id === id);
-      setTodos((prev) => prev.filter((todo) => todo.id !== id));
-
-      if (!actionPerformedByUndoing && taskToBeDeleted) {
-        const lastPerformedActions = [
-          ...lastActions.slice(-2),
-          { type: "delete", performedOn: taskToBeDeleted },
-        ];
-        setLastActions(lastPerformedActions);
-      }
-    }
   };
 
   return (
