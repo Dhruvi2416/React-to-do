@@ -9,13 +9,12 @@ import UndoTask from "./UndoRedoTaskButton";
 import { useTodoContext } from "../providers/TodoProvider";
 
 const TodoWrapper: React.FC = () => {
-  const { todos, setTodos, lastActions, setLastActions } = useTodoContext();
+  const { todos, setTodos } = useTodoContext();
 
   const [filterType, setFilterType] = useState<"all" | "pending" | "completed">(
     "all"
   );
   const [sortByOldest, setSortByOldest] = useState<boolean>(false);
-  
 
   //sortedAndFilteredTodos
   const sortedAndFilteredTodos = useMemo<TodoItem[]>(() => {

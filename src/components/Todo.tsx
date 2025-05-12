@@ -16,8 +16,7 @@ const Todo: React.FC<TodoProps> = ({
   onClickEditTask,
   className = "",
 }) => {
-  const { todos, setTodos, lastActions, setLastActions, handleDeleteTask } =
-    useTodoContext();
+  const { todos, setTodos, handleDeleteTask } = useTodoContext();
 
   //check if the task is expired
   const isTaskExpired = () => {

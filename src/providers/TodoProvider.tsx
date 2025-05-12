@@ -16,11 +16,22 @@ type TodoContextType = {
   handleEditTodo: (
     id: string,
     task: string,
-    actionPerformedByUndoRedo: boolean
+    actionPerformedByUndoRedo?: boolean,
+    isRedo?: boolean
   ) => void;
-  handleDeleteTask: (id: string, actionPerformedByUndoRedo?: boolean) => void;
+  handleDeleteTask: (
+    id: string,
+    actionPerformedByUndoRedo?: boolean,
+    isRedo?: boolean
+  ) => void;
   redoActions: LastActionType[];
   setRedoActions: Dispatch<SetStateAction<LastActionType[]>>;
+  storeActionType: (
+    type: "add" | "edit" | "delete",
+    task: TodoItem,
+    storeInUndoStack: boolean,
+    shouldEmptyRedo?: boolean
+  ) => void;
 };
 const TodoContext = createContext<TodoContextType | null>(null);
 const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -31,22 +42,48 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
   );
   const [lastActions, setLastActions] = useState<LastActionType[]>([]);
   const [redoActions, setRedoActions] = useState<LastActionType[]>([]);
+
+  //Handle action type stored in undo stack
+  const storeActionType = (
+    type: "add" | "edit" | "delete",
+    task: TodoItem,
+    storeInUndoStack: boolean,
+    shouldEmptyRedo: boolean = true
+  ) => {
+    if (storeInUndoStack) {
+      const lastPerformedActions = [
+        ...lastActions.slice(-5),
+        { type: type, performedOn: task },
+      ];
+      setLastActions(lastPerformedActions);
+      console.log("lastPerformedActions", lastPerformedActions);
+      if (shouldEmptyRedo) {
+        setRedoActions([]);
+      }
+    } else {
+      setRedoActions((prevActions) => [
+        ...prevActions,
+        { type: type, performedOn: task },
+      ]);
+      console.log("REDO", redoActions);
+    }
+  };
+
   // Handle task edit
   const handleEditTodo = (
     id: string,
     task: string,
-    actionPerformedByUndoRedo = false
+    actionPerformedByUndoRedo = false,
+    isRedo: boolean = false
   ) => {
-    if (!actionPerformedByUndoRedo) {
-      const editTask = todos.find((todo) => todo.id === id);
-      if (editTask) {
-        const lastPerformedActions = [
-          ...lastActions.slice(-2),
-          { type: "edit", performedOn: editTask },
-        ];
-        setLastActions(lastPerformedActions);
-        setRedoActions([]);
-      }
+    const editTask = todos.find((todo) => todo.id === id);
+    if (editTask) {
+      storeActionType(
+        "edit",
+        editTask,
+        !actionPerformedByUndoRedo ? true : isRedo ? true : false,
+        !actionPerformedByUndoRedo
+      );
     }
 
     setTodos((prev) =>
@@ -57,7 +94,11 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   // Delete task
-  const handleDeleteTask = (id: string, actionPerformedByUndoRedo = false) => {
+  const handleDeleteTask = (
+    id: string,
+    actionPerformedByUndoRedo = false,
+    isRedo: boolean = false
+  ) => {
     const permissionNeeded = actionPerformedByUndoRedo ? false : true;
 
     if (
@@ -69,13 +110,13 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
       const taskToBeDeleted = todos.find((todo) => todo.id === id);
       setTodos((prev) => prev.filter((todo) => todo.id !== id));
 
-      if (!actionPerformedByUndoRedo && taskToBeDeleted) {
-        const lastPerformedActions = [
-          ...lastActions.slice(-2),
-          { type: "delete", performedOn: taskToBeDeleted },
-        ];
-        setLastActions(lastPerformedActions);
-        setRedoActions([]);
+      if (taskToBeDeleted) {
+        storeActionType(
+          "delete",
+          taskToBeDeleted,
+          !actionPerformedByUndoRedo ? true : isRedo ? true : false,
+          !actionPerformedByUndoRedo
+        );
       }
     }
   };
@@ -96,6 +137,7 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
         handleDeleteTask,
         redoActions,
         setRedoActions,
+        storeActionType,
       }}
     >
       {children}

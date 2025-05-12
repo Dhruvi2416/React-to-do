@@ -11,6 +11,7 @@ const UndoTask: React.FC = () => {
     handleDeleteTask,
     redoActions,
     setRedoActions,
+    storeActionType,
   } = useTodoContext();
 
   //handle undo task
@@ -25,47 +26,22 @@ const UndoTask: React.FC = () => {
       if (performedTask && performedTask.performedOn) {
         switch (performedTask?.type) {
           case "add": {
-            handleDeleteTask(performedTask?.performedOn?.id, true);
+            handleDeleteTask(performedTask?.performedOn?.id, true, isRedo);
 
-            const lastUndoActions = {
-              type: "delete",
-              performedOn: performedTask?.performedOn,
-            };
-            if (isRedo) {
-              const lastPerformedActions = [
-                ...lastActions.slice(-2),
-                lastUndoActions,
-              ];
-              setLastActions(lastPerformedActions);
-            } else {
-              setRedoActions((prevActions) => [
-                ...prevActions,
-                lastUndoActions,
-              ]);
-            }
             break;
           }
 
           case "delete": {
             const task = performedTask.performedOn;
             setTodos((prevTodos) => [task, ...prevTodos]);
-            const lastUndoActions = {
-              type: "add",
-              performedOn: performedTask?.performedOn,
-            };
 
-            if (isRedo) {
-              const lastPerformedActions = [
-                ...lastActions.slice(-2),
-                lastUndoActions,
-              ];
-              setLastActions(lastPerformedActions);
-            } else {
-              setRedoActions((prevActions) => [
-                ...prevActions,
-                lastUndoActions,
-              ]);
-            }
+            // //Log activity of delete
+            storeActionType(
+              "add",
+              performedTask?.performedOn,
+              isRedo ? true : false,
+              false
+            );
 
             break;
           }
@@ -74,25 +50,10 @@ const UndoTask: React.FC = () => {
             handleEditTodo(
               performedTask?.performedOn?.id,
               performedTask?.performedOn?.task,
-              true
+              true,
+              isRedo
             );
-            const lastUndoActions = {
-              type: "edit",
-              performedOn: performedTask?.performedOn,
-            };
 
-            if (isRedo) {
-              const lastPerformedActions = [
-                ...lastActions.slice(-2),
-                lastUndoActions,
-              ];
-              setLastActions(lastPerformedActions);
-            } else {
-              setRedoActions((prevActions) => [
-                ...prevActions,
-                lastUndoActions,
-              ]);
-            }
             break;
           }
         }

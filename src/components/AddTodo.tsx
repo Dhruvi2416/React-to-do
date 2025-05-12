@@ -4,14 +4,7 @@ import { useState } from "react";
 import { useTodoContext } from "../providers/TodoProvider";
 
 const AddTodo: React.FC = () => {
-  const {
-    todos,
-    setTodos,
-    lastActions,
-    setLastActions,
-    redoActions,
-    setRedoActions,
-  } = useTodoContext();
+  const { setTodos, storeActionType } = useTodoContext();
   const [newTask, setNewTask] = useState("");
   const [showError, setShowError] = useState("");
 
@@ -34,12 +27,8 @@ const AddTodo: React.FC = () => {
     };
     setTodos((prevTodos) => [newTodo, ...prevTodos]);
 
-    const lastPerformedActions = [
-      ...lastActions.slice(-2),
-      { type: "add", performedOn: newTodo },
-    ];
-    setLastActions(lastPerformedActions);
-    setRedoActions([]);
+    //Log activity of add
+    storeActionType("add", newTodo, true);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
