@@ -1,23 +1,20 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { v4 as uuidv4 } from "uuid";
-import TodoForm from "./TodoForm";
+import AddTodo from "./AddTodo";
 import Todo from "./Todo";
 import EditTodoForm from "./EditTodoForm";
 import TodoFilter from "./TodoFilter";
 import DueDateSelector from "./DueDateSelector";
-import { TodoItem, lastActionType } from "../types";
-import UndoTask from "./UndoTask";
+import { TodoItem, LastActionType } from "../types";
+import UndoTask from "./UndoRedoTaskButton";
+import { useTodoContext } from "../providers/TodoProvider";
 
 const TodoWrapper: React.FC = () => {
-  const [todos, setTodos] = useState<TodoItem[]>(() =>
-    JSON.parse(localStorage.getItem("todosStored") || "[]")
-  );
+  const { todos, setTodos } = useTodoContext();
+
   const [filterType, setFilterType] = useState<"all" | "pending" | "completed">(
     "all"
   );
   const [sortByOldest, setSortByOldest] = useState<boolean>(false);
-  const [lastActions, setLastActions] = useState<lastActionType[]>([]);
-  // const[undoStack,setUndoStack] = useState([]);
 
   //sortedAndFilteredTodos
   const sortedAndFilteredTodos = useMemo<TodoItem[]>(() => {
@@ -37,51 +34,6 @@ const TodoWrapper: React.FC = () => {
     return sortedTodos;
   }, [todos, filterType, sortByOldest]);
 
-  // Add new todo
-  const addTodos = (todo: string) => {
-    const newTodo = {
-      id: uuidv4(),
-      task: todo,
-      completed: false,
-      isEditing: false,
-      createdAt: Date.now(),
-      dueDate: Date.now(),
-    };
-    setTodos((prevTodos) => [newTodo, ...prevTodos]);
-
-    const lastPerformedActions = [
-      ...lastActions.slice(-2),
-      { type: "add", performedOn: newTodo },
-    ];
-    setLastActions(lastPerformedActions);
-  };
-
-  // Toggle complete status
-  const toggleComplete = (id: string) => {
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
-  };
-
-  // Delete task
-  const handleDeleteTask = (id: string, actionPerformedByUndoing = false) => {
-    if (window.confirm("Are you sure you want to delete the task?")) {
-      //used find instead of filter a sfilter returns [] but we need {}
-      const taskToBeDeleted = todos.find((todo) => todo.id === id);
-      setTodos((prev) => prev.filter((todo) => todo.id !== id));
-
-      if (!actionPerformedByUndoing) {
-        const lastPerformedActions = [
-          ...lastActions.slice(-2),
-          { type: "delete", performedOn: taskToBeDeleted },
-        ];
-        setLastActions(lastPerformedActions);
-      }
-    }
-  };
-
   // Toggle edit mode
   const handleOnClickEditTask = (id: string) => {
     setTodos((prev) =>
@@ -91,103 +43,28 @@ const TodoWrapper: React.FC = () => {
     );
   };
 
-  // Handle task edit
-  const handleEditTodo = (
-    id: string,
-    task: string,
-    actionPerformedByUndoing = false
-  ) => {
-    if (!actionPerformedByUndoing) {
-      const editTask = todos.find((todo) => todo.id === id);
-
-      const lastPerformedActions = [
-        ...lastActions.slice(-2),
-        { type: "edit", performedOn: editTask },
-      ];
-      setLastActions(lastPerformedActions);
-    }
-
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id ? { ...todo, isEditing: false, ...{ task } } : todo
-      )
-    );
-  };
-
-  //Handle Due Date Change of a todo
-  const handleDueDateChangeOfTodo = (id: string, newDueDate: number) => {
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id
-          ? { ...todo, dueDate: newDueDate } // Update the due date here
-          : todo
-      )
-    );
-  };
-
-  //handle undo task
-  const handleUndoTask = () => {
-    if (lastActions.length) {
-      const performedTask = lastActions.pop();
-      if (performedTask && performedTask.performedOn) {
-        switch (performedTask?.type) {
-          case "add":
-            handleDeleteTask(performedTask?.performedOn?.id, true);
-            break;
-
-          case "delete":
-            const task = performedTask.performedOn!;
-            setTodos((prevTodos) => [task, ...prevTodos]);
-            break;
-
-          case "edit":
-            handleEditTodo(
-              performedTask?.performedOn?.id,
-              performedTask?.performedOn?.task,
-              true
-            );
-            break;
-        }
-      }
-    }
-  };
-
-  // Store todos in localStorage
-  useEffect(() => {
-    localStorage.setItem("todosStored", JSON.stringify(todos));
-  }, [todos]);
-
   return (
     <div className="TodoWrapper">
       <h1 className="text-5xl mt-3 flex justify-center align-items-center">
         Get Things Done!
       </h1>
-      <TodoForm addTodo={addTodos} />
+      <AddTodo />
       <div className="todolist">
         {sortedAndFilteredTodos.map((todo, index) =>
           todo.isEditing ? (
             <EditTodoForm
               task={todo}
               key={todo.id}
-              editTodo={handleEditTodo}
               onEscEditTask={handleOnClickEditTask}
             />
           ) : (
             <div className="flex justify-between" key={todo.id}>
               <div className="w-[95%]">
-                <Todo
-                  task={todo}
-                  toggleComplete={toggleComplete}
-                  deleteTask={handleDeleteTask}
-                  onClickEditTask={handleOnClickEditTask}
-                />
+                <Todo task={todo} onClickEditTask={handleOnClickEditTask} />
               </div>
 
               <div className="w-[5%]">
-                <DueDateSelector
-                  task={todo}
-                  dueDateChange={handleDueDateChangeOfTodo}
-                />
+                <DueDateSelector task={todo} />
               </div>
             </div>
           )
@@ -199,7 +76,7 @@ const TodoWrapper: React.FC = () => {
         onSortByOldest={setSortByOldest}
         sort={sortByOldest}
       />
-      <UndoTask undoTask={handleUndoTask} />
+      <UndoTask />
     </div>
   );
 };

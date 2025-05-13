@@ -1,17 +1,15 @@
 import React from "react";
 import { useState } from "react";
 import { TodoItem } from "../types";
+import { useTodoContext } from "../providers/TodoProvider";
 
 type EditTodoProps = {
-  editTodo: (id: string, task: string, undoEdit: boolean) => void;
   task: TodoItem;
   onEscEditTask: (id: string) => void;
 };
-const EditTodoForm: React.FC<EditTodoProps> = ({
-  editTodo,
-  task,
-  onEscEditTask,
-}) => {
+const EditTodoForm: React.FC<EditTodoProps> = ({ task, onEscEditTask }) => {
+  const { handleEditTodo } = useTodoContext();
+
   const [newTask, setNewTask] = useState(task.task);
   const [showError, setShowError] = useState("");
 
@@ -29,7 +27,7 @@ const EditTodoForm: React.FC<EditTodoProps> = ({
       return;
     }
     setShowError("");
-    editTodo(task.id, newTask, false);
+    handleEditTodo(task.id, newTask, false);
     setNewTask("");
   };
   return (
