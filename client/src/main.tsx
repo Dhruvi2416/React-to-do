@@ -4,6 +4,7 @@ import "./index.css";
 import App from "./App.js";
 import { BrowserRouter } from "react-router-dom";
 import "react-toastify/ReactToastify.css";
+import UserProvider from "./providers/UserProvider";
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {
@@ -11,7 +12,9 @@ if (!rootElement) {
 }
 
 createRoot(rootElement).render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+  <UserProvider>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </UserProvider>
 );

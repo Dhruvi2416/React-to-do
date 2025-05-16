@@ -3,10 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { LoginInfo } from "../types";
 import { handleError, handleSuccess } from "../helpers/util";
+import { useUserContext } from "../providers/UserProvider";
 // type loginKeys = "name" | "email" | "password";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { user, setUser } = useUserContext();
   const [loginInfo, setLoginInfo] = useState<LoginInfo>({
     email: "",
     password: "",
@@ -29,17 +31,22 @@ const Login: React.FC = () => {
     if (!email || !password) {
       return handleError("All fields are required");
     }
+    
     try {
-      const url = "http://localhost:5000/auth/login";
+      const url = `${import.meta.env.VITE_LINK}auth/login`;
+
       const response = await fetch(url, {
         method: "POST",
         headers: { "Content-type": "application/json" },
         body: JSON.stringify(loginInfo),
       });
       const result = await response.json();
-      const { success, message, error } = result;
+      const { success, message, error, jwtToken, name } = result;
       if (success) {
         handleSuccess(message);
+        localStorage.setItem("token", jwtToken);
+        localStorage.setItem("loggedInUser", name);
+        setUser(name);
         setTimeout(() => {
           navigate("/todos");
         }, 1000);

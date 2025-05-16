@@ -31,7 +31,7 @@ const Register: React.FC = () => {
       return handleError("All fields are required");
     }
     try {
-      const url = "http://localhost:5000/auth/signup";
+      const url = `${import.meta.env.VITE_LINK}auth/signup`;
       const response = await fetch(url, {
         method: "POST",
         headers: { "Content-type": "application/json" },

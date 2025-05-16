@@ -7,10 +7,15 @@ import DueDateSelector from "./DueDateSelector";
 import { TodoItem, LastActionType } from "../types";
 import UndoTask from "./UndoRedoTaskButton";
 import { useTodoContext } from "../providers/TodoProvider";
+import { useNavigate } from "react-router-dom";
+import { handleError, handleSuccess } from "../helpers/util";
+import { useUserContext } from "../providers/UserProvider";
 
 const TodoWrapper: React.FC = () => {
-  const { todos, setTodos } = useTodoContext();
+  const navigate = useNavigate();
 
+  const { todos, setTodos } = useTodoContext();
+  const { user, setUser } = useUserContext();
   const [filterType, setFilterType] = useState<"all" | "pending" | "completed">(
     "all"
   );
@@ -43,11 +48,46 @@ const TodoWrapper: React.FC = () => {
     );
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("loggedInUser");
+    handleSuccess("Logged Out Successfully!");
+    setUser("");
+    setTimeout(() => {
+      navigate("/login");
+    }, 1000);
+  };
+
+  const fetchProducts = async () => {
+    const token = localStorage.getItem("token") || "";
+
+    const url = `${import.meta.env.VITE_LINK}api`;
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { "Content-type": "application/json", Authorization: token },
+    });
+
+    const result = await response.json();
+    const { success, message } = result;
+    if (!success) {
+      handleError(message);
+      setTimeout(() => {
+        navigate("/login");
+      }, 1000);
+    }
+    console.log("rrrrrr", result);
+  };
+
+  useEffect(() => {
+    const userLoggedIn = localStorage.getItem("loggedInUser") || "";
+    setUser(userLoggedIn);
+    fetchProducts();
+  }, []);
   return (
     <>
       <div className="TodoWrapper">
-        <h1 className="text-5xl mt-3 flex justify-center align-items-center">
-          Get Things Done!
+        <h1 className="text-2xl mt-3 flex justify-center align-items-center">
+          Hello {user}, Here are your tasks!
         </h1>
         <AddTodo />
         <div className="todolist">
@@ -78,6 +118,7 @@ const TodoWrapper: React.FC = () => {
           sort={sortByOldest}
         />
         <UndoTask />
+        <button onClick={handleLogout}>Logout</button>
       </div>
     </>
   );
