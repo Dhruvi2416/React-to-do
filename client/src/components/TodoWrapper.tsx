@@ -44,40 +44,42 @@ const TodoWrapper: React.FC = () => {
   };
 
   return (
-    <div className="TodoWrapper">
-      <h1 className="text-5xl mt-3 flex justify-center align-items-center">
-        Get Things Done!
-      </h1>
-      <AddTodo />
-      <div className="todolist">
-        {sortedAndFilteredTodos.map((todo, index) =>
-          todo.isEditing ? (
-            <EditTodoForm
-              task={todo}
-              key={todo.id}
-              onEscEditTask={handleOnClickEditTask}
-            />
-          ) : (
-            <div className="flex justify-between" key={todo.id}>
-              <div className="w-[95%]">
-                <Todo task={todo} onClickEditTask={handleOnClickEditTask} />
-              </div>
+    <>
+      <div className="TodoWrapper">
+        <h1 className="text-5xl mt-3 flex justify-center align-items-center">
+          Get Things Done!
+        </h1>
+        <AddTodo />
+        <div className="todolist">
+          {sortedAndFilteredTodos.map((todo, index) =>
+            todo.isEditing ? (
+              <EditTodoForm
+                task={todo}
+                key={todo.id}
+                onEscEditTask={handleOnClickEditTask}
+              />
+            ) : (
+              <div className="flex justify-between" key={todo.id}>
+                <div className="w-[95%]">
+                  <Todo task={todo} onClickEditTask={handleOnClickEditTask} />
+                </div>
 
-              <div className="w-[5%]">
-                <DueDateSelector task={todo} />
+                <div className="w-[5%]">
+                  <DueDateSelector task={todo} />
+                </div>
               </div>
-            </div>
-          )
-        )}
+            )
+          )}
+        </div>
+        <TodoFilter
+          onFilterChange={setFilterType}
+          filterType={filterType}
+          onSortByOldest={setSortByOldest}
+          sort={sortByOldest}
+        />
+        <UndoTask />
       </div>
-      <TodoFilter
-        onFilterChange={setFilterType}
-        filterType={filterType}
-        onSortByOldest={setSortByOldest}
-        sort={sortByOldest}
-      />
-      <UndoTask />
-    </div>
+    </>
   );
 };
 
