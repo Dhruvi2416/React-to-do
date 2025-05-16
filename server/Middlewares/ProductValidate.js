@@ -36,8 +36,8 @@ const ensureAuthenticated = (req, res, next) => {
   }
 
   try {
-    const token = auth.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
+    // const token = auth.split(" ")[1];
+    const decoded = jwt.verify(auth, process.env.JWT_SECRETKEY);
     req.user = decoded;
     next();
   } catch (err) {
