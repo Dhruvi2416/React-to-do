@@ -43,7 +43,7 @@ const TodoWrapper: React.FC = () => {
   const handleOnClickEditTask = (id: string) => {
     setTodos((prev) =>
       prev.map((todo) =>
-        todo.id === id ? { ...todo, isEditing: !todo.isEditing } : todo
+        todo._id === id ? { ...todo, isEditing: !todo.isEditing } : todo
       )
     );
   };
@@ -58,30 +58,9 @@ const TodoWrapper: React.FC = () => {
     }, 1000);
   };
 
-  const fetchProducts = async () => {
-    const token = localStorage.getItem("token") || "";
-
-    const url = `${import.meta.env.VITE_LINK}api`;
-    const response = await fetch(url, {
-      method: "GET",
-      headers: { "Content-type": "application/json", Authorization: token },
-    });
-
-    const result = await response.json();
-    const { success, message } = result;
-    if (!success) {
-      handleError(message);
-      setTimeout(() => {
-        navigate("/login");
-      }, 1000);
-    }
-    console.log("rrrrrr", result);
-  };
-
   useEffect(() => {
     const userLoggedIn = localStorage.getItem("loggedInUser") || "";
     setUser(userLoggedIn);
-    fetchProducts();
   }, []);
   return (
     <>
@@ -95,11 +74,11 @@ const TodoWrapper: React.FC = () => {
             todo.isEditing ? (
               <EditTodoForm
                 task={todo}
-                key={todo.id}
+                key={todo._id}
                 onEscEditTask={handleOnClickEditTask}
               />
             ) : (
-              <div className="flex justify-between" key={todo.id}>
+              <div className="flex justify-between" key={todo._id}>
                 <div className="w-[95%]">
                   <Todo task={todo} onClickEditTask={handleOnClickEditTask} />
                 </div>

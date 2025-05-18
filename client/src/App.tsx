@@ -5,7 +5,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 // import Callback from "./components/Callback";
 import "./App.css";
-import TodoProvider from "./providers/TodoProvider";
+import {TodoProvider} from "./providers/TodoProvider";
 import { useUserContext } from "./providers/UserProvider";
 import { ToastContainer } from "react-toastify";
 import { handleError } from "./helpers/util";
@@ -28,7 +28,7 @@ function App() {
           element={!user ? <Register /> : <Navigate to="/todos" replace />}
         />
         <Route
-          path="/tod os"
+          path="/todos"
           element={
             user ? (
               <TodoProvider>

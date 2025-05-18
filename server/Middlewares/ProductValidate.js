@@ -29,22 +29,4 @@ const checkProductExist = (req, res, next) => {
   next();
 };
 
-const ensureAuthenticated = (req, res, next) => {
-  const auth = req.headers["authorization"];
-  if (!auth) {
-    return res.status(403).json({ message: "Unauthorized", success: false });
-  }
-
-  try {
-    // const token = auth.split(" ")[1];
-    const decoded = jwt.verify(auth, process.env.JWT_SECRETKEY);
-    req.user = decoded;
-    next();
-  } catch (err) {
-    console.error("JWT verification error:", err);
-    return res
-      .status(403)
-      .json({ message: "Unauthorized JWT token is wrong", success: false });
-  }
-};
-module.exports = { productValidation, checkProductExist, ensureAuthenticated };
+module.exports = { productValidation, checkProductExist };

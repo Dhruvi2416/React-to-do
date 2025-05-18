@@ -1,5 +1,5 @@
 const JOI = require("joi");
-
+const jwt = require("jsonwebtoken");
 const signUpValidation = (req, res, next) => {
   const schema = JOI.object({
     name: JOI.string().min(3).max(11).required(),
@@ -27,7 +27,27 @@ const loginValidation = (req, res, next) => {
   next();
 };
 
+const ensureAuthenticated = (req, res, next) => {
+  const auth = req.headers["authorization"];
+  if (!auth) {
+    return res
+      .status(403)
+      .json({ message: "Unauthorized - Token is missing", success: false });
+  }
+
+  try {
+    // const token = auth.split(" ")[1];
+    const decoded = jwt.verify(auth, process.env.JWT_SECRETKEY);
+    console.log("DDEEEEC", decoded, "URL:", req.url);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(403).json({ message: err.message, success: false });
+  }
+};
+
 module.exports = {
   signUpValidation,
   loginValidation,
+  ensureAuthenticated,
 };

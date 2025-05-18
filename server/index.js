@@ -4,9 +4,9 @@ const bodyParser = require("body-parser"); //whatever post method will send serv
 const app = express();
 require("dotenv").config();
 require("./Models/db");
-const AuthRoute = require("./Routes/AuthRouter");
+const AuthRouter = require("./Routes/AuthRouter");
 const ProductRouter = require("./Routes/ProductRouter");
-
+const TodoRouter = require("./Routes/TodoRouter");
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -16,8 +16,9 @@ app.use(bodyParser.json());
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
-app.use("/auth", AuthRoute);
-app.use("/api", ProductRouter);
+app.use("/auth", AuthRouter);
+// app.use("/api", ProductRouter);
+app.use("/todos", TodoRouter);
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

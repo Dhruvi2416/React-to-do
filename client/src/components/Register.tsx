@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
 import { SignUpInfo } from "../types";
 import { handleError, handleSuccess } from "../helpers/util";
 // type SignUpKeys = "name" | "email" | "password";
@@ -100,7 +99,6 @@ const Register: React.FC = () => {
           </Link>
         </span>
       </form>
-      <ToastContainer />
     </div>
   );
 };

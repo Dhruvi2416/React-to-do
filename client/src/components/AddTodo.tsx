@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import React from "react";
 import { useState } from "react";
 import { useTodoContext } from "../providers/TodoProvider";
+import { handleError } from "../helpers/util";
 
 const AddTodo: React.FC = () => {
   const { setTodos, storeActionType } = useTodoContext();
@@ -16,19 +17,38 @@ const AddTodo: React.FC = () => {
   };
 
   // Add new todo
-  const addTodos = (todo: string) => {
-    const newTodo = {
-      id: uuidv4(),
-      task: todo,
-      completed: false,
-      isEditing: false,
-      createdAt: Date.now(),
-      dueDate: Date.now(),
-    };
-    setTodos((prevTodos) => [newTodo, ...prevTodos]);
+  const addTodos = async (todo: string) => {
+    try {
+      const url = `${import.meta.env.VITE_LINK}todos/add`;
+      const token = localStorage.getItem("token") || "";
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({ task: todo.trim() }),
+      });
+      const result = await response.json();
 
-    //Log activity of add
-    storeActionType("add", newTodo, true);
+      const { message, success } = result;
+
+      if (success) {
+        setTodos((prevTodos) => [result.newTodo, ...prevTodos]);
+
+        //Log activity of add
+        storeActionType("add", result.newTodo, true);
+        setNewTask("");
+      } else {
+        handleError(message);
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        handleError(err.message);
+      } else {
+        handleError("Something went wrong");
+      }
+    }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -40,7 +60,6 @@ const AddTodo: React.FC = () => {
     }
     setShowError("");
     addTodos(newTask);
-    setNewTask("");
   };
 
   return (

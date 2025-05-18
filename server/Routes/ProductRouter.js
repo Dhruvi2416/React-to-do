@@ -13,7 +13,7 @@ const {
 router.post("/products", productValidation, logProduct);
 router.post("/productSearch", checkProductExist, searchProduct);
 
-router.get("/", ensureAuthenticated, (req, res) => {
-  res.status(200).json({ message: "Valid Token", success: true });
-});
+// router.get("/", ensureAuthenticated, (req, res) => {
+//   res.status(200).json({ message: "Valid Token", success: true });
+// });
 module.exports = router;

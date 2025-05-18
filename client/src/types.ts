@@ -1,10 +1,11 @@
 export type TodoItem = {
-  id: string;
+  _id: string;
   task: string;
   completed: boolean;
   isEditing: boolean;
   createdAt: number;
   dueDate: number;
+  user: string;
 };
 
 export type LastActionType = {

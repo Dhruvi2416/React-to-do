@@ -26,7 +26,7 @@ const UndoTask: React.FC = () => {
       if (performedTask && performedTask.performedOn) {
         switch (performedTask?.type) {
           case "add": {
-            handleDeleteTask(performedTask?.performedOn?.id, true, isRedo);
+            handleDeleteTask(performedTask?.performedOn?._id, true, isRedo);
 
             break;
           }
@@ -48,7 +48,7 @@ const UndoTask: React.FC = () => {
 
           case "edit": {
             handleEditTodo(
-              performedTask?.performedOn?.id,
+              performedTask?.performedOn?._id,
               performedTask?.performedOn?.task,
               true,
               isRedo

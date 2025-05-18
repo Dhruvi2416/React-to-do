@@ -28,7 +28,7 @@ const Todo: React.FC<TodoProps> = ({
   const toggleComplete = (id: string) => {
     setTodos((prev) =>
       prev.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+        todo._id === id ? { ...todo, completed: !todo.completed } : todo
       )
     );
   };
@@ -41,7 +41,7 @@ const Todo: React.FC<TodoProps> = ({
           style={{
             marginTop: -20,
           }}
-          onChange={() => toggleComplete(task.id)}
+          onChange={() => toggleComplete(task._id)}
           checked={task.completed}
         />
         <div>
@@ -70,12 +70,12 @@ const Todo: React.FC<TodoProps> = ({
         <FontAwesomeIcon
           className="p-2"
           icon={faPenToSquare}
-          onClick={() => onClickEditTask(task.id)}
+          onClick={() => onClickEditTask(task._id)}
         />
         <FontAwesomeIcon
           className="p-2"
           icon={faTrash}
-          onClick={() => handleDeleteTask(task.id)}
+          onClick={() => handleDeleteTask(task._id)}
         />
       </div>
     </div>

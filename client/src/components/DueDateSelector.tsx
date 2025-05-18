@@ -19,21 +19,21 @@ const DueDateSelector: React.FC<DatePickerProps> = ({ task }) => {
     if (newDate) {
       const timestamp = newDate.getTime(); // Convert to timestamp (number)
       // setDueDate(timestamp); // Update state with timestamp
-      handleDueDateChangeOfTodo(task.id, timestamp); // Pass the timestamp to the parent component
+      handleDueDateChangeOfTodo(task._id, timestamp); // Pass the timestamp to the parent component
     }
   };
 
   //Handle Due Date Change of a todo
   const handleDueDateChangeOfTodo = (id: string, newDueDate: number) => {
     // //Log activity of edit date
-    const oldTask = todos.find((t) => t.id === id);
+    const oldTask = todos.find((t) => t._id === id);
     if (!oldTask) return;
     console.log("OLD", oldTask);
     storeActionType("edit", { ...oldTask }, true); // this guarantees the old dueDate is stored
     console.log("First new", task.dueDate);
     setTodos((prev) =>
       prev.map((todo) =>
-        todo.id === id
+        todo._id === id
           ? { ...todo, dueDate: newDueDate } // Update the due date here
           : todo
       )
