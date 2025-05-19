@@ -32,10 +32,16 @@ const TodoWrapper: React.FC = () => {
         filteredTodos = todos.filter((todo) => !todo.completed);
         break;
     }
-
+    console.log("filteredTodos", filteredTodos);
     const sortedTodos = sortByOldest
-      ? [...filteredTodos].sort((a, b) => a.createdAt - b.createdAt)
-      : [...filteredTodos].sort((a, b) => b.createdAt - a.createdAt);
+      ? [...filteredTodos].sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        )
+      : [...filteredTodos].sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
     return sortedTodos;
   }, [todos, filterType, sortByOldest]);
 
