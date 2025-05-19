@@ -16,7 +16,7 @@ type TodoContextType = {
   setLastActions: Dispatch<SetStateAction<LastActionType[]>>;
   handleEditTodo: (
     id: string,
-    task: string,
+    updateField: string | boolean | Date,
     actionPerformedByUndoRedo?: boolean,
     isRedo?: boolean
   ) => void;
@@ -28,7 +28,7 @@ type TodoContextType = {
   redoActions: LastActionType[];
   setRedoActions: Dispatch<SetStateAction<LastActionType[]>>;
   storeActionType: (
-    type: "add" | "edit" | "delete",
+    type: "add" | "edit" | "delete" | "toggleComplete" | "changeDate",
     task: TodoItem,
     storeInUndoStack: boolean,
     shouldEmptyRedo?: boolean
@@ -45,7 +45,7 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
 
   //Handle action type stored in undo stack
   const storeActionType = (
-    type: "add" | "edit" | "delete",
+    type: "add" | "edit" | "delete" | "toggleComplete" | "changeDate",
     task: TodoItem,
     storeInUndoStack: boolean,
     shouldEmptyRedo: boolean = true
@@ -56,7 +56,7 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
         { type: type, performedOn: task },
       ];
       setLastActions(lastPerformedActions);
-      console.log("lastPerformedActions", lastPerformedActions);
+   
       if (shouldEmptyRedo) {
         setRedoActions([]);
       }
@@ -65,14 +65,14 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
         ...prevActions,
         { type: type, performedOn: task },
       ]);
-      console.log("REDO", redoActions);
+      
     }
   };
 
   // Handle task edit
   const handleEditTodo = async (
     id: string,
-    task: string,
+    updateField: string | boolean | Date,
     actionPerformedByUndoRedo = false,
     isRedo: boolean = false
   ) => {
@@ -80,22 +80,34 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
       const url = `${import.meta.env.VITE_LINK}todos/edit/${id}`;
       const token = localStorage.getItem("token") || "";
       const editTask = todos.find((todo) => todo._id === id);
-
+   
+      const editField: Partial<TodoItem> = {};
+      if (typeof updateField === "string") editField.task = updateField;
+      if (typeof updateField === "boolean") editField.completed = updateField;
+      if (updateField instanceof Date) editField.dueDate = updateField;
       const response = await fetch(url, {
         method: "PUT",
         headers: {
           "Content-type": "application/json",
           Authorization: token,
         },
-        body: JSON.stringify({ task }),
+        body: JSON.stringify({ ...editField }),
       });
       const result = await response.json();
       const { message, success } = result;
-      console.log("EEEEEEEEEDV", result);
-      if (success) {
-        if (editTask) {
+    
+      if (success && editTask) {
+        let actionType = "edit";
+        if (typeof updateField === "string") actionType = "edit";
+        if (typeof updateField === "boolean") actionType = "toggleComplete";
+        if (updateField instanceof Date) actionType = "changeDate";
+        if (
+          actionType === "edit" ||
+          actionType === "toggleComplete" ||
+          actionType === "changeDate"
+        ) {
           storeActionType(
-            "edit",
+            actionType,
             editTask,
             !actionPerformedByUndoRedo ? true : isRedo ? true : false,
             !actionPerformedByUndoRedo
@@ -103,7 +115,7 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
         }
         setTodos((prev) =>
           prev.map((todo) =>
-            todo._id === id ? { ...todo, isEditing: false, ...{ task } } : todo
+            todo._id === id ? { ...todo, isEditing: false, ...editField } : todo
           )
         );
       } else {
@@ -181,7 +193,7 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
         headers: { "Content-type": "application/json", Authorization: token },
       });
       const result = await response.json();
-      console.log("RRRRRRRRESDDFDGG", result);
+     
       const { success, todos, message } = result;
       if (success) {
         setTodos(todos);

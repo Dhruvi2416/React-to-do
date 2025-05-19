@@ -4,7 +4,7 @@ export type TodoItem = {
   completed: boolean;
   isEditing: boolean;
   createdAt: number;
-  dueDate: number;
+  dueDate: Date;
   user: string;
 };
 

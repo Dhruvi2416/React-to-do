@@ -3,11 +3,8 @@ const TodoModel = require("../Models/Todo");
 const addTodos = async (req, res) => {
   try {
     const { task } = req.body;
-
     const id = req.user._id;
-
     const existing = await TodoModel.findOne({ task: task, user: id });
-    console.log("EXISISI", existing);
     if (existing) {
       return res.status(400).json({
         message: "This task already exists in your list.",
@@ -42,21 +39,30 @@ const getTodos = async (req, res) => {
 };
 
 const editTodo = async (req, res) => {
+
   const taskId = req.params.id;
   const userId = req.user._id;
-  const todo = req.body.task;
-  try {
-    const existing = await TodoModel.findOne({ task: todo, user: userId });
+  const { task, completed, dueDate } = req.body;
 
-    if (existing) {
-      return res.status(400).json({
-        message: "This task already exists in your list.",
-        success: false,
-      });
+  try {
+    if (task) {
+      const existing = await TodoModel.findOne({ task, user: userId });
+
+      if (existing) {
+        return res.status(400).json({
+          message: "This task already exists in your list.",
+          success: false,
+        });
+      }
     }
+    const updateFields = {};
+    if (typeof task !== "undefined") updateFields.task = task;
+    if (typeof completed !== "undefined") updateFields.completed = completed;
+    if (typeof dueDate !== "undefined") updateFields.dueDate = dueDate;
+
     const editedTask = await TodoModel.findOneAndUpdate(
       { user: userId, _id: taskId },
-      { todo },
+      updateFields,
       { new: true }
     );
     if (!editedTask) {
@@ -77,8 +83,7 @@ const editTodo = async (req, res) => {
 const deleteTodos = async (req, res) => {
   const userId = req.user._id;
   const taskId = req.params.id;
-  console.log("USSERID", userId);
-  console.log("TTTTASKId", taskId);
+
   try {
     const deleted = await TodoModel.findOneAndDelete({
       _id: taskId,
@@ -100,4 +105,42 @@ const deleteTodos = async (req, res) => {
   }
 };
 
-module.exports = { addTodos, getTodos, deleteTodos, editTodo };
+const restoreTodo = async (req, res) => {
+  try {
+    const { task, completed, isEditing, user, createdAt, dueDate, _id } =
+      req.body;
+    const id = req.user._id;
+    const existing = await TodoModel.findOne({ task: task, user: id });
+    if (existing) {
+      return res.status(400).json({
+        message: "This task already exists in your list.",
+        success: false,
+      });
+    }
+    const newTodo = new TodoModel({
+      task,
+      user: id,
+      completed,
+      isEditing,
+      user,
+      createdAt,
+      dueDate,
+      _id,
+    });
+    await newTodo.save();
+    res
+      .status(201)
+      .json({ message: "Task added successfully!", success: true, newTodo });
+  } catch (err) {
+    if (err.code === 11000) {
+      // MongoDB duplicate key error (from unique index)
+      return res.status(400).json({
+        message: "This task already exists in your list.",
+        success: false,
+      });
+    }
+    res.status(500).json({ message: err.message, success: false });
+  }
+};
+
+module.exports = { addTodos, getTodos, deleteTodos, editTodo, restoreTodo };

@@ -38,7 +38,6 @@ const ensureAuthenticated = (req, res, next) => {
   try {
     // const token = auth.split(" ")[1];
     const decoded = jwt.verify(auth, process.env.JWT_SECRETKEY);
-    console.log("DDEEEEC", decoded, "URL:", req.url);
     req.user = decoded;
     next();
   } catch (err) {

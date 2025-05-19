@@ -5,6 +5,7 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import { TodoItem } from "../types";
 import { useTodoContext } from "../providers/TodoProvider";
+import { handleError } from "../helpers/util";
 
 type TodoProps = {
   task: TodoItem;
@@ -16,7 +17,8 @@ const Todo: React.FC<TodoProps> = ({
   onClickEditTask,
   className = "",
 }) => {
-  const { todos, setTodos, handleDeleteTask } = useTodoContext();
+  const { todos, setTodos, handleDeleteTask, storeActionType, handleEditTodo } =
+    useTodoContext();
 
   //check if the task is expired
   const isTaskExpired = () => {
@@ -25,12 +27,8 @@ const Todo: React.FC<TodoProps> = ({
     return dueDate.isBefore(currentDate);
   };
   // Toggle complete status
-  const toggleComplete = (id: string) => {
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo._id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
+  const toggleComplete = async (id: string) => {
+    handleEditTodo(id, !task.completed);
   };
 
   return (
