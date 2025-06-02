@@ -2,10 +2,7 @@ const mongoose = require("mongoose");
 const TodoModel = require("../Models/Todo");
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO_CONN, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_CONN)
   .then(async () => {
     console.log("Mongo DB is connected");
 

@@ -32,7 +32,7 @@ const ensureAuthenticated = (req, res, next) => {
   if (!auth) {
     return res
       .status(403)
-      .json({ message: "Unauthorized - Token is missing", success: false });
+      .json({ message: "Unauthorized - Token is missing", success: false, statusCode: 403 });
   }
 
   try {
@@ -41,7 +41,9 @@ const ensureAuthenticated = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    return res.status(403).json({ message: err.message, success: false });
+    return res
+      .status(403)
+      .json({ message: err.message, success: false, statusCode: 403 });
   }
 };
 

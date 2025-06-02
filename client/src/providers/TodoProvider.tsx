@@ -8,8 +8,10 @@ import React, {
 } from "react";
 import { TodoItem, LastActionType } from "../types";
 import { handleError, handleSuccess } from "../helpers/util";
+import { useNavigate } from "react-router-dom";
 
 type TodoContextType = {
+  token: string;
   todos: TodoItem[];
   setTodos: Dispatch<SetStateAction<TodoItem[]>>;
   lastActions: LastActionType[];
@@ -38,8 +40,9 @@ const TodoContext = createContext<TodoContextType | null>(null);
 const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const navigate = useNavigate();
   const [todos, setTodos] = useState<TodoItem[]>([]);
-
+  const [token, setToken] = useState<string>("");
   const [lastActions, setLastActions] = useState<LastActionType[]>([]);
   const [redoActions, setRedoActions] = useState<LastActionType[]>([]);
 
@@ -56,7 +59,7 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
         { type: type, performedOn: task },
       ];
       setLastActions(lastPerformedActions);
-   
+
       if (shouldEmptyRedo) {
         setRedoActions([]);
       }
@@ -65,7 +68,6 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
         ...prevActions,
         { type: type, performedOn: task },
       ]);
-      
     }
   };
 
@@ -78,9 +80,8 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
   ) => {
     try {
       const url = `${import.meta.env.VITE_LINK}todos/edit/${id}`;
-      const token = localStorage.getItem("token") || "";
       const editTask = todos.find((todo) => todo._id === id);
-   
+
       const editField: Partial<TodoItem> = {};
       if (typeof updateField === "string") editField.task = updateField;
       if (typeof updateField === "boolean") editField.completed = updateField;
@@ -95,7 +96,7 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
       });
       const result = await response.json();
       const { message, success } = result;
-    
+
       if (success && editTask) {
         let actionType = "edit";
         if (typeof updateField === "string") actionType = "edit";
@@ -145,7 +146,6 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
     ) {
       try {
         const url = `${import.meta.env.VITE_LINK}todos/delete/${id}`;
-        const token = localStorage.getItem("token") || "";
         const response = await fetch(url, {
           method: "DELETE",
           headers: {
@@ -187,32 +187,47 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
   const fetchTodos = async () => {
     try {
       const url = `${import.meta.env.VITE_LINK}todos/`;
-      const token = localStorage.getItem("token") || "";
       const response = await fetch(url, {
         method: "GET",
         headers: { "Content-type": "application/json", Authorization: token },
       });
       const result = await response.json();
-     
-      const { success, todos, message } = result;
+
+      const { success, todos, message, statusCode } = result;
       if (success) {
         setTodos(todos);
       } else {
+        console.log("elssse", statusCode === 403);
+        if (statusCode === 403) {
+          localStorage.removeItem("loggedInUser");
+          localStorage.removeItem("token");
+          setTimeout(() => {
+            navigate("/login");
+            handleError("JWT token expired!Please login again!!!");
+          }, 0);
+        }
         handleError(message);
       }
     } catch (err) {
       if (err instanceof Error) {
+        console.log("catch if");
         handleError(err.message);
       } else {
+        console.log("catch elssse");
         handleError("Something went Wrong");
       }
     }
   };
   // Store todos in localStorage
   useEffect(() => {
-    fetchTodos();
+    const token = localStorage.getItem("token") || "";
+    setToken(token);
   }, []);
-
+  useEffect(() => {
+    if (token) {
+      fetchTodos();
+    }
+  }, [token]);
   return (
     <TodoContext.Provider
       value={{
@@ -225,6 +240,7 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
         redoActions,
         setRedoActions,
         storeActionType,
+        token,
       }}
     >
       {children}

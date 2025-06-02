@@ -43,7 +43,7 @@ const editTodo = async (req, res) => {
   const taskId = req.params.id;
   const userId = req.user._id;
   const { task, completed, dueDate } = req.body;
-
+ 
   try {
     if (task) {
       const existing = await TodoModel.findOne({ task, user: userId });

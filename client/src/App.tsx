@@ -5,10 +5,10 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 // import Callback from "./components/Callback";
 import "./App.css";
-import {TodoProvider} from "./providers/TodoProvider";
+import { TodoProvider } from "./providers/TodoProvider";
 import { useUserContext } from "./providers/UserProvider";
 import { ToastContainer } from "react-toastify";
-import { handleError } from "./helpers/util";
+import ProtectedRoute from "./components/ProtectedRouter";
 
 function App() {
   const { user } = useUserContext();
@@ -30,16 +30,11 @@ function App() {
         <Route
           path="/todos"
           element={
-            user ? (
+            <ProtectedRoute>
               <TodoProvider>
                 <TodoWrapper />
               </TodoProvider>
-            ) : (
-              (() => {
-                handleError("Please login first");
-                return <Navigate to="/login" replace />;
-              })()
-            )
+            </ProtectedRoute>
           }
         />
       </Routes>

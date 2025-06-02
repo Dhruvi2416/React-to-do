@@ -30,38 +30,7 @@ const DueDateSelector: React.FC<DatePickerProps> = ({ task }) => {
     const oldTask = todos.find((t) => t._id === id);
     if (!oldTask) return;
     handleEditTodo(id, newDueDate);
-    // try {
-    //   const url = `${import.meta.env.VITE_LINK}todos/edit/${id}`;
-    //   const token = localStorage.getItem("token") || "";
-    //   const response = await fetch(url, {
-    //     method: "PUT",
-    //     headers: {
-    //       "Content-type": "application/json",
-    //       Authorization: token,
-    //     },
-    //     body: JSON.stringify({ dueDate: newDueDate }),
-    //   });
-
-    //   const result = await response.json();
-    //   const { success, message } = result;
-    //   if (success) {
-    //     setTodos((prev) =>
-    //       prev.map((todo) =>
-    //         todo._id === id
-    //           ? { ...todo, dueDate: newDueDate } // Update the due date here
-    //           : todo
-    //       )
-    //     );
-    //   } else {
-    //     handleError(message);
-    //   }
-    // } catch (err) {
-    //   if (err instanceof Error) {
-    //     handleError(err.message);
-    //   } else {
-    //     handleError("Something went wrong");
-    //   }
-    // }
+   
   };
 
   return (

@@ -4,6 +4,7 @@ import React, {
   SetStateAction,
   useContext,
   useState,
+  useEffect,
 } from "react";
 
 type UserContextType = {
@@ -19,6 +20,15 @@ const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<string>(
     localStorage.getItem("loggedInUser") || ""
   );
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("loggedInUser", user);
+    } else {
+      localStorage.removeItem("loggedInUser");
+    }
+  }, [user]);
+
   return (
     <UserContext.Provider value={{ user, setUser }}>
       {children}

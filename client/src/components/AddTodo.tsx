@@ -5,7 +5,7 @@ import { useTodoContext } from "../providers/TodoProvider";
 import { handleError } from "../helpers/util";
 
 const AddTodo: React.FC = () => {
-  const { setTodos, storeActionType } = useTodoContext();
+  const { setTodos, storeActionType,token } = useTodoContext();
   const [newTask, setNewTask] = useState("");
   const [showError, setShowError] = useState("");
 
@@ -20,7 +20,7 @@ const AddTodo: React.FC = () => {
   const addTodos = async (todo: string) => {
     try {
       const url = `${import.meta.env.VITE_LINK}todos/add`;
-      const token = localStorage.getItem("token") || "";
+   
       const response = await fetch(url, {
         method: "POST",
         headers: {

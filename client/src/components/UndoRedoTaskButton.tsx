@@ -4,7 +4,7 @@ import { handleError } from "../helpers/util";
 
 const UndoTask: React.FC = () => {
   const {
-    todos,
+    token,
     setTodos,
     lastActions,
     setLastActions,
@@ -38,7 +38,7 @@ const UndoTask: React.FC = () => {
               const url = `${import.meta.env.VITE_LINK}todos/restore/${
                 performedTask?.performedOn?._id
               }`;
-              const token = localStorage.getItem("token") || "";
+            
               const response = await fetch(url, {
                 method: "POST",
                 headers: {

@@ -46,7 +46,7 @@ const login = async (req, res) => {
       { email: user.email, _id: user._id },
       process.env.JWT_SECRETKEY,
       {
-        expiresIn: "24h",
+        expiresIn: "1m",
       }
     );
 
@@ -58,7 +58,8 @@ const login = async (req, res) => {
       name: user.name,
     });
   } catch (err) {
-    res.status(500).json({ message: "Internal Server Error", success: false });
+    console.log("ERRRRRRRR login", err);
+    res.status(500).json({ message: err.message, success: false });
   }
 };
 
