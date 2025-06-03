@@ -4,6 +4,7 @@ import React, {
   SetStateAction,
   useContext,
   useState,
+  useEffect,
 } from "react";
 
 type UserContextType = {
@@ -19,6 +20,15 @@ const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<string>(
     localStorage.getItem("loggedInUser") || ""
   );
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("loggedInUser", user);
+    } else {
+      localStorage.removeItem("loggedInUser");
+    }
+  }, [user]);
+
   return (
     <UserContext.Provider value={{ user, setUser }}>
       {children}
@@ -26,12 +36,11 @@ const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-export default UserProvider;
-
-export const useUserContext = () => {
+const useUserContext = () => {
   const context = useContext(UserContext);
   if (!context) {
     throw new Error("useUserContext must be used within a UserProvider");
   }
   return context;
 };
+export { UserProvider, useUserContext };

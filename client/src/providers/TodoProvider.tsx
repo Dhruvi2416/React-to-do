@@ -7,15 +7,18 @@ import React, {
   useContext,
 } from "react";
 import { TodoItem, LastActionType } from "../types";
+import { handleError, handleSuccess } from "../helpers/util";
+import { useNavigate } from "react-router-dom";
 
 type TodoContextType = {
+  token: string;
   todos: TodoItem[];
   setTodos: Dispatch<SetStateAction<TodoItem[]>>;
   lastActions: LastActionType[];
   setLastActions: Dispatch<SetStateAction<LastActionType[]>>;
   handleEditTodo: (
     id: string,
-    task: string,
+    updateField: string | boolean | Date,
     actionPerformedByUndoRedo?: boolean,
     isRedo?: boolean
   ) => void;
@@ -27,7 +30,7 @@ type TodoContextType = {
   redoActions: LastActionType[];
   setRedoActions: Dispatch<SetStateAction<LastActionType[]>>;
   storeActionType: (
-    type: "add" | "edit" | "delete",
+    type: "add" | "edit" | "delete" | "toggleComplete" | "changeDate",
     task: TodoItem,
     storeInUndoStack: boolean,
     shouldEmptyRedo?: boolean
@@ -37,15 +40,15 @@ const TodoContext = createContext<TodoContextType | null>(null);
 const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [todos, setTodos] = useState<TodoItem[]>(() =>
-    JSON.parse(localStorage.getItem("todosStored") || "[]")
-  );
+  const navigate = useNavigate();
+  const [todos, setTodos] = useState<TodoItem[]>([]);
+  const [token, setToken] = useState<string>("");
   const [lastActions, setLastActions] = useState<LastActionType[]>([]);
   const [redoActions, setRedoActions] = useState<LastActionType[]>([]);
 
   //Handle action type stored in undo stack
   const storeActionType = (
-    type: "add" | "edit" | "delete",
+    type: "add" | "edit" | "delete" | "toggleComplete" | "changeDate",
     task: TodoItem,
     storeInUndoStack: boolean,
     shouldEmptyRedo: boolean = true
@@ -56,7 +59,7 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
         { type: type, performedOn: task },
       ];
       setLastActions(lastPerformedActions);
-      console.log("lastPerformedActions", lastPerformedActions);
+
       if (shouldEmptyRedo) {
         setRedoActions([]);
       }
@@ -65,36 +68,71 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
         ...prevActions,
         { type: type, performedOn: task },
       ]);
-      console.log("REDO", redoActions);
     }
   };
 
   // Handle task edit
-  const handleEditTodo = (
+  const handleEditTodo = async (
     id: string,
-    task: string,
+    updateField: string | boolean | Date,
     actionPerformedByUndoRedo = false,
     isRedo: boolean = false
   ) => {
-    const editTask = todos.find((todo) => todo.id === id);
-    if (editTask) {
-      storeActionType(
-        "edit",
-        editTask,
-        !actionPerformedByUndoRedo ? true : isRedo ? true : false,
-        !actionPerformedByUndoRedo
-      );
-    }
+    try {
+      const url = `${import.meta.env.VITE_LINK}todos/edit/${id}`;
+      const editTask = todos.find((todo) => todo._id === id);
 
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id ? { ...todo, isEditing: false, ...{ task } } : todo
-      )
-    );
+      const editField: Partial<TodoItem> = {};
+      if (typeof updateField === "string") editField.task = updateField;
+      if (typeof updateField === "boolean") editField.completed = updateField;
+      if (updateField instanceof Date) editField.dueDate = updateField;
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({ ...editField }),
+      });
+      const result = await response.json();
+      const { message, success } = result;
+
+      if (success && editTask) {
+        let actionType = "edit";
+        if (typeof updateField === "string") actionType = "edit";
+        if (typeof updateField === "boolean") actionType = "toggleComplete";
+        if (updateField instanceof Date) actionType = "changeDate";
+        if (
+          actionType === "edit" ||
+          actionType === "toggleComplete" ||
+          actionType === "changeDate"
+        ) {
+          storeActionType(
+            actionType,
+            editTask,
+            !actionPerformedByUndoRedo ? true : isRedo ? true : false,
+            !actionPerformedByUndoRedo
+          );
+        }
+        setTodos((prev) =>
+          prev.map((todo) =>
+            todo._id === id ? { ...todo, isEditing: false, ...editField } : todo
+          )
+        );
+      } else {
+        handleError(message);
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        handleError(err.message);
+      } else {
+        handleError("Something went wrong for updating task");
+      }
+    }
   };
 
   // Delete task
-  const handleDeleteTask = (
+  const handleDeleteTask = async (
     id: string,
     actionPerformedByUndoRedo = false,
     isRedo: boolean = false
@@ -106,26 +144,90 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
         ? window.confirm("Are you sure you want to delete the task?")
         : actionPerformedByUndoRedo
     ) {
-      //used find instead of filter a filter returns [] but we need {}
-      const taskToBeDeleted = todos.find((todo) => todo.id === id);
-      setTodos((prev) => prev.filter((todo) => todo.id !== id));
+      try {
+        const url = `${import.meta.env.VITE_LINK}todos/delete/${id}`;
+        const response = await fetch(url, {
+          method: "DELETE",
+          headers: {
+            "Content-type": "application/json",
+            Authorization: token,
+          },
+        });
+        const result = await response.json();
+        const { success, message } = result;
+        if (success) {
+          handleSuccess(message);
+          //used find instead of filter a filter returns [] but we need {}
+          const taskToBeDeleted = todos.find((todo) => todo._id === id);
+          setTodos((prev) => prev.filter((todo) => todo._id !== id));
 
-      if (taskToBeDeleted) {
-        storeActionType(
-          "delete",
-          taskToBeDeleted,
-          !actionPerformedByUndoRedo ? true : isRedo ? true : false,
-          !actionPerformedByUndoRedo
-        );
+          if (taskToBeDeleted) {
+            storeActionType(
+              "delete",
+              taskToBeDeleted,
+              !actionPerformedByUndoRedo ? true : isRedo ? true : false,
+              !actionPerformedByUndoRedo
+            );
+          }
+        } else {
+          handleError(message);
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          handleError(err.message);
+        } else {
+          handleError(
+            "Task is not delete or you do not have permission to delete it!"
+          );
+        }
       }
     }
   };
 
+  const fetchTodos = async () => {
+    try {
+      const url = `${import.meta.env.VITE_LINK}todos/`;
+      const response = await fetch(url, {
+        method: "GET",
+        headers: { "Content-type": "application/json", Authorization: token },
+      });
+      const result = await response.json();
+
+      const { success, todos, message, statusCode } = result;
+      if (success) {
+        setTodos(todos);
+      } else {
+        console.log("elssse", statusCode === 403);
+        if (statusCode === 403) {
+          localStorage.removeItem("loggedInUser");
+          localStorage.removeItem("token");
+          setTimeout(() => {
+            navigate("/login");
+            handleError("JWT token expired!Please login again!!!");
+          }, 0);
+        }
+        handleError(message);
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        console.log("catch if");
+        handleError(err.message);
+      } else {
+        console.log("catch elssse");
+        handleError("Something went Wrong");
+      }
+    }
+  };
   // Store todos in localStorage
   useEffect(() => {
-    localStorage.setItem("todosStored", JSON.stringify(todos));
-  }, [todos]);
-
+    const token = localStorage.getItem("token") || "";
+    setToken(token);
+  }, []);
+  useEffect(() => {
+    if (token) {
+      fetchTodos();
+    }
+  }, [token]);
   return (
     <TodoContext.Provider
       value={{
@@ -138,14 +240,13 @@ const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
         redoActions,
         setRedoActions,
         storeActionType,
+        token,
       }}
     >
       {children}
     </TodoContext.Provider>
   );
 };
-
-export default TodoProvider;
 
 // context/TodoContext.ts
 export const useTodoContext = () => {
@@ -154,3 +255,4 @@ export const useTodoContext = () => {
     throw new Error("useTodoContext must be used within a TodoProvider");
   return context;
 };
+export { TodoProvider };

@@ -5,6 +5,7 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import { TodoItem } from "../types";
 import { useTodoContext } from "../providers/TodoProvider";
+import { handleError } from "../helpers/util";
 
 type TodoProps = {
   task: TodoItem;
@@ -16,7 +17,8 @@ const Todo: React.FC<TodoProps> = ({
   onClickEditTask,
   className = "",
 }) => {
-  const { todos, setTodos, handleDeleteTask } = useTodoContext();
+  const { todos, setTodos, handleDeleteTask, storeActionType, handleEditTodo } =
+    useTodoContext();
 
   //check if the task is expired
   const isTaskExpired = () => {
@@ -25,12 +27,8 @@ const Todo: React.FC<TodoProps> = ({
     return dueDate.isBefore(currentDate);
   };
   // Toggle complete status
-  const toggleComplete = (id: string) => {
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
+  const toggleComplete = async (id: string) => {
+    handleEditTodo(id, !task.completed);
   };
 
   return (
@@ -41,7 +39,7 @@ const Todo: React.FC<TodoProps> = ({
           style={{
             marginTop: -20,
           }}
-          onChange={() => toggleComplete(task.id)}
+          onChange={() => toggleComplete(task._id)}
           checked={task.completed}
         />
         <div>
@@ -70,12 +68,12 @@ const Todo: React.FC<TodoProps> = ({
         <FontAwesomeIcon
           className="p-2"
           icon={faPenToSquare}
-          onClick={() => onClickEditTask(task.id)}
+          onClick={() => onClickEditTask(task._id)}
         />
         <FontAwesomeIcon
           className="p-2"
           icon={faTrash}
-          onClick={() => handleDeleteTask(task.id)}
+          onClick={() => handleDeleteTask(task._id)}
         />
       </div>
     </div>

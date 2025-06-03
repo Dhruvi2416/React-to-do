@@ -15,7 +15,7 @@ const EditTodoForm: React.FC<EditTodoProps> = ({ task, onEscEditTask }) => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Escape") {
-      onEscEditTask(task.id);
+      onEscEditTask(task._id);
     }
   };
 
@@ -27,8 +27,7 @@ const EditTodoForm: React.FC<EditTodoProps> = ({ task, onEscEditTask }) => {
       return;
     }
     setShowError("");
-    handleEditTodo(task.id, newTask, false);
-    setNewTask("");
+    handleEditTodo(task._id, newTask, false);
   };
   return (
     <form className="EditTodoForm py-2 " onSubmit={handleSubmit}>
