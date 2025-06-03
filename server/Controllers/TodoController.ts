@@ -1,8 +1,28 @@
-const TodoModel = require("../Models/Todo");
+// const TodoModel = require("../Models/Todo");
+import TodoModel from "../Models/Todo";
+import { Request, Response } from "express";
 
-const addTodos = async (req, res) => {
+interface UpdateFields {
+  task?: string;
+  completed?: boolean;
+  dueDate?: Date; // depending on your type
+}
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    _id: string;
+  };
+}
+
+const addTodos = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<Response> => {
   try {
-    const { task } = req.body;
+    const { task }: { task: string } = req.body;
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized", success: false });
+    }
     const id = req.user._id;
     const existing = await TodoModel.findOne({ task: task, user: id });
     if (existing) {
@@ -13,10 +33,10 @@ const addTodos = async (req, res) => {
     }
     const newTodo = new TodoModel({ task, user: id });
     await newTodo.save();
-    res
+    return res
       .status(201)
       .json({ message: "Task added successfully!", success: true, newTodo });
-  } catch (err) {
+  } catch (err: any) {
     if (err.code === 11000) {
       // MongoDB duplicate key error (from unique index)
       return res.status(400).json({
@@ -24,26 +44,31 @@ const addTodos = async (req, res) => {
         success: false,
       });
     }
-    res.status(500).json({ message: err.message, success: false });
+    return res.status(500).json({ message: err.message, success: false });
   }
 };
 
-const getTodos = async (req, res) => {
+const getTodos = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<Response> => {
   try {
-    const id = req.user._id;
+    const id: string = req.user!._id;
     const todos = await TodoModel.find({ user: id });
-    res.status(200).json({ success: true, todos: todos });
-  } catch (err) {
-    res.status(500).json({ message: err.message, success: false });
+    return res.status(200).json({ success: true, todos: todos });
+  } catch (err: any) {
+    return res.status(500).json({ message: err.message, success: false });
   }
 };
 
-const editTodo = async (req, res) => {
-
+const editTodo = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<Response> => {
   const taskId = req.params.id;
-  const userId = req.user._id;
+  const userId = req.user!._id;
   const { task, completed, dueDate } = req.body;
- 
+
   try {
     if (task) {
       const existing = await TodoModel.findOne({ task, user: userId });
@@ -55,7 +80,7 @@ const editTodo = async (req, res) => {
         });
       }
     }
-    const updateFields = {};
+    const updateFields: UpdateFields = {};
     if (typeof task !== "undefined") updateFields.task = task;
     if (typeof completed !== "undefined") updateFields.completed = completed;
     if (typeof dueDate !== "undefined") updateFields.dueDate = dueDate;
@@ -80,8 +105,11 @@ const editTodo = async (req, res) => {
   }
 };
 
-const deleteTodos = async (req, res) => {
-  const userId = req.user._id;
+const deleteTodos = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<Response> => {
+  const userId = req.user!._id;
   const taskId = req.params.id;
 
   try {
@@ -105,11 +133,14 @@ const deleteTodos = async (req, res) => {
   }
 };
 
-const restoreTodo = async (req, res) => {
+const restoreTodo = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<Response> => {
   try {
     const { task, completed, isEditing, user, createdAt, dueDate, _id } =
       req.body;
-    const id = req.user._id;
+    const id = req.user!._id;
     const existing = await TodoModel.findOne({ task: task, user: id });
     if (existing) {
       return res.status(400).json({
@@ -122,16 +153,15 @@ const restoreTodo = async (req, res) => {
       user: id,
       completed,
       isEditing,
-      user,
       createdAt,
       dueDate,
       _id,
     });
     await newTodo.save();
-    res
+    return res
       .status(201)
       .json({ message: "Task added successfully!", success: true, newTodo });
-  } catch (err) {
+  } catch (err: any) {
     if (err.code === 11000) {
       // MongoDB duplicate key error (from unique index)
       return res.status(400).json({
@@ -139,7 +169,7 @@ const restoreTodo = async (req, res) => {
         success: false,
       });
     }
-    res.status(500).json({ message: err.message, success: false });
+    return res.status(500).json({ message: err.message, success: false });
   }
 };
 

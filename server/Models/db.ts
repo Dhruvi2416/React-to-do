@@ -1,8 +1,17 @@
-const mongoose = require("mongoose");
-const TodoModel = require("../Models/Todo");
+// const mongoose = require("mongoose");
+// const TodoModel = require("../Models/Todo");
+import mongoose from "mongoose";
+import TodoModel from "../Models/Todo";
+import dotenv from "dotenv";
+dotenv.config();
 // Connect to MongoDB
+const mongoConn = process.env.MONGO_CONN;
+if (!mongoConn) {
+  throw new Error("MONGO_CONN environment variable is not defined");
+}
+
 mongoose
-  .connect(process.env.MONGO_CONN)
+  .connect(mongoConn)
   .then(async () => {
     console.log("Mongo DB is connected");
 

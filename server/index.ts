@@ -1,3 +1,5 @@
+import { Response, Request } from "express";
+
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser"); //whatever post method will send server will accept it for ex., name,email etc.
@@ -13,8 +15,8 @@ app.use(express.json());
 app.use(bodyParser.json());
 
 // Define routes
-app.get("/", (req, res) => {
-  res.send("API is running...");
+app.get("/", (req: Request, res: Response): Response => {
+  return res.send("API is running...");
 });
 app.use("/auth", AuthRouter);
 // app.use("/api", ProductRouter);

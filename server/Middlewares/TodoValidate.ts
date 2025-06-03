@@ -1,6 +1,11 @@
-const JOI = require("joi");
-
-const TodoValidation = (req, res, next) => {
+// const JOI = require("joi");
+import JOI from "joi";
+import { Request, Response, NextFunction } from "express";
+const TodoValidation = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Response | void => {
   const schema = JOI.object({
     task: JOI.string().min(3).max(70).required(),
   });
@@ -13,7 +18,11 @@ const TodoValidation = (req, res, next) => {
   next();
 };
 
-const RestoreTodoValidation = (req, res, next) => {
+const RestoreTodoValidation = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Response | void => {
   const schema = JOI.object({
     task: JOI.string().min(3).max(70).required(),
     completed: JOI.boolean().required(),
